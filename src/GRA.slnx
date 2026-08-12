@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="GRA.Api/GRA.Api.csproj" />
+  <Project Path="GRA.Application/GRA.Application.csproj" />
+  <Project Path="GRA.Domain/GRA.Domain.csproj" />
+  <Project Path="GRA.Infra.Persistence/GRA.Infra.Persistence.csproj" />
+</Solution>
