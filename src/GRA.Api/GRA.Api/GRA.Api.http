@@ -1,4 +1,4 @@
-@GRA.Api_HostAddress = http://localhost:5104
+@GRA.Api_HostAddress = http://localhost:5024
 
 GET {{GRA.Api_HostAddress}}/weatherforecast/
 Accept: application/json
