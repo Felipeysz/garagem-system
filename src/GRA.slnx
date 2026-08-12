@@ -1,14 +1,14 @@
 <Solution>
   <Folder Name="/1 - Presentation/">
-    <Project Path="GRA.Api/GRA.Api/GRA.Api.csproj" />
+    <Project Path="GRA.Api/GRA.Api.csproj" />
   </Folder>
   <Folder Name="/2 - Application/">
-    <Project Path="GRA.Application/GRA.Application/GRA.Application.csproj" />
+    <Project Path="GRA.Application/GRA.Application.csproj" />
   </Folder>
   <Folder Name="/3 - Domain/">
-    <Project Path="GRA.Domain/GRA.Domain/GRA.Domain.csproj" />
+    <Project Path="GRA.Domain/GRA.Domain.csproj" />
   </Folder>
   <Folder Name="/4 - Infrastructure/">
-    <Project Path="GRA.Infra.Persistence/GRA.Infra.Persistence/GRA.Infra.Persistence.csproj" />
+    <Project Path="GRA.Infra.Persistence/GRA.Infra.Persistence.csproj" />
   </Folder>
 </Solution>
