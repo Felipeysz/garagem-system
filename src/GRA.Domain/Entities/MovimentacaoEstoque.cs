@@ -1,11 +1,10 @@
+using GRA.Domain.Entities.Commom;
 using GRA.Domain.Enums;
 
 namespace GRA.Domain.Entities;
 
-public class MovimentacaoEstoque
+public class MovimentacaoEstoque : Entity
 {
-    public int Id { get; set; }
-
     public int GaragemId { get; set; }
     public Garagem? Garagem { get; set; }
 

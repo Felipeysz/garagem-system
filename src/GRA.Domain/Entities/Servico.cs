@@ -1,9 +1,9 @@
+using GRA.Domain.Entities.Commom;
+
 namespace GRA.Domain.Entities;
 
-public class Servico
+public class Servico : Entity
 {
-    public int Id { get; set; }
-
     public int GaragemId { get; set; }
     public Garagem? Garagem { get; set; }
 

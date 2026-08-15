@@ -1,10 +1,11 @@
+using GRA.Domain.Entities.Commom;
+
 namespace GRA.Domain.Entities;
 
-public class Garagem
+public class Oficina : Entity
 {
-    public int Id { get; set; }
-    public required string Nome { get; set; }
-    public required string CNPJ { get; set; }
+    public string Nome { get; set; }
+    public string CNPJ { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public string? Endereco { get; set; }

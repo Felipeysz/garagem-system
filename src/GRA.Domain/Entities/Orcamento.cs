@@ -1,9 +1,9 @@
+using GRA.Domain.Entities.Commom;
+
 namespace GRA.Domain.Entities;
 
-public class Orcamento
+public class Orcamento : Entity
 {
-    public int Id { get; set; }
-
     public int GaragemId { get; set; }
     public Garagem? Garagem { get; set; }
 
