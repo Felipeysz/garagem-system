@@ -4,8 +4,8 @@ namespace GRA.Domain.Entities;
 
 public class Veiculo : Entity
 {
-    public int OficinaId { get; set; }
-    public int ClienteId { get; set; }
+    public long OficinaId { get; set; }
+    public long ClienteId { get; set; }
     public required string Placa { get; set; }
     public string? Chassi { get; set; }
     public required string Marca { get; set; }

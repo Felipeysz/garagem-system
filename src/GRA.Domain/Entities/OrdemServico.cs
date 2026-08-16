@@ -4,13 +4,13 @@ namespace GRA.Domain.Entities;
 
 public class OrdemServico : Entity
 {
-    public int OficinaId { get; set; }
+    public long OficinaId { get; set; }
     public Oficina? Oficina { get; set; }
 
-    public int VeiculoId { get; set; }
+    public long VeiculoId { get; set; }
     public Veiculo? Veiculo { get; set; }
 
-    public int FuncionarioResponsavelId { get; set; }
+    public long FuncionarioResponsavelId { get; set; }
     public Funcionario? FuncionarioResponsavel { get; set; }
 
     public DateTime DataAbertura { get; set; } = DateTime.UtcNow;

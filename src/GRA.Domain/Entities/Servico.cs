@@ -4,10 +4,10 @@ namespace GRA.Domain.Entities;
 
 public class Servico : Entity
 {
-    public int OficinaId { get; set; }
+    public long OficinaId { get; set; }
     public Oficina? Oficina { get; set; }
 
-    public int TipoServicoId { get; set; }
+    public long TipoServicoId { get; set; }
     public TipoServico? TipoServico { get; set; }
 
     public required string Nome { get; set; }

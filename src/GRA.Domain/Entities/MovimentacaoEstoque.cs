@@ -5,16 +5,16 @@ namespace GRA.Domain.Entities;
 
 public class MovimentacaoEstoque : Entity
 {
-    public int OficinaId { get; set; }
+    public long OficinaId { get; set; }
     public Oficina? Oficina { get; set; }
 
-    public int PecaId { get; set; }
+    public long PecaId { get; set; }
     public Peca? Peca { get; set; }
 
-    public int? FornecedorId { get; set; }
+    public long? FornecedorId { get; set; }
     public Fornecedor? Fornecedor { get; set; }
 
-    public int? OrdemServicoId { get; set; }
+    public long? OrdemServicoId { get; set; }
     public OrdemServico? OrdemServico { get; set; }
 
     public TipoMovimentacaoEstoque Tipo { get; set; }

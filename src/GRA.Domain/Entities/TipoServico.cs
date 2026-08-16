@@ -4,7 +4,7 @@ namespace GRA.Domain.Entities;
 
 public class TipoServico : Entity
 {
-    public int OficinaId { get; set; }
+    public long OficinaId { get; set; }
     public Oficina? Oficina { get; set; }
 
     public required string Nome { get; set; }
