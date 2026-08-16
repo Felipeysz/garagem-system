@@ -4,8 +4,8 @@ namespace GRA.Domain.Entities;
 
 public class Fornecedor : Entity
 {
-    public int GaragemId { get; set; }
-    public Garagem? Garagem { get; set; }
+    public int OficinaId { get; set; }
+    public Oficina? Oficina { get; set; }
 
     public required string RazaoSocial { get; set; }
     public string? NomeFantasia { get; set; }

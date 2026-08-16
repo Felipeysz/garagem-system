@@ -9,7 +9,7 @@ public class GRAContext : DbContext
     {
     }
 
-    public DbSet<Garagem> Garagens => Set<Garagem>();
+    public DbSet<Oficina> Garagens => Set<Oficina>();
     public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<Veiculo> Veiculos => Set<Veiculo>();
     public DbSet<Funcionario> Funcionarios => Set<Funcionario>();
@@ -24,29 +24,29 @@ public class GRAContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Garagem>(e =>
+        modelBuilder.Entity<Oficina>(e =>
         {
             e.HasIndex(g => g.CNPJ).IsUnique();
         });
 
         modelBuilder.Entity<Cliente>(e =>
         {
-            e.HasIndex(c => new { c.GaragemId, c.CPF }).IsUnique();
+            e.HasIndex(c => new { c.OficinaId, c.CPF }).IsUnique();
 
-            e.HasOne(c => c.Garagem)
+            e.HasOne(c => c.Oficina)
                 .WithMany(g => g.Clientes)
-                .HasForeignKey(c => c.GaragemId)
+                .HasForeignKey(c => c.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Veiculo>(e =>
         {
-            e.HasIndex(v => new { v.GaragemId, v.Placa }).IsUnique();
-            e.HasIndex(v => new { v.GaragemId, v.Chassi }).IsUnique();
+            e.HasIndex(v => new { v.OficinaId, v.Placa }).IsUnique();
+            e.HasIndex(v => new { v.OficinaId, v.Chassi }).IsUnique();
 
-            e.HasOne(v => v.Garagem)
+            e.HasOne(v => v.Oficina)
                 .WithMany(g => g.Veiculos)
-                .HasForeignKey(v => v.GaragemId)
+                .HasForeignKey(v => v.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasOne(v => v.Cliente)
@@ -57,31 +57,31 @@ public class GRAContext : DbContext
 
         modelBuilder.Entity<Funcionario>(e =>
         {
-            e.HasIndex(f => new { f.GaragemId, f.CPF }).IsUnique();
+            e.HasIndex(f => new { f.OficinaId, f.CPF }).IsUnique();
 
-            e.HasOne(f => f.Garagem)
+            e.HasOne(f => f.Oficina)
                 .WithMany(g => g.Funcionarios)
-                .HasForeignKey(f => f.GaragemId)
+                .HasForeignKey(f => f.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<TipoServico>(e =>
         {
-            e.HasIndex(t => new { t.GaragemId, t.Nome }).IsUnique();
+            e.HasIndex(t => new { t.OficinaId, t.Nome }).IsUnique();
 
-            e.HasOne(t => t.Garagem)
+            e.HasOne(t => t.Oficina)
                 .WithMany(g => g.TiposServico)
-                .HasForeignKey(t => t.GaragemId)
+                .HasForeignKey(t => t.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Servico>(e =>
         {
-            e.HasIndex(s => new { s.GaragemId, s.Nome }).IsUnique();
+            e.HasIndex(s => new { s.OficinaId, s.Nome }).IsUnique();
 
-            e.HasOne(s => s.Garagem)
+            e.HasOne(s => s.Oficina)
                 .WithMany(g => g.Servicos)
-                .HasForeignKey(s => s.GaragemId)
+                .HasForeignKey(s => s.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasOne(s => s.TipoServico)
@@ -92,30 +92,30 @@ public class GRAContext : DbContext
 
         modelBuilder.Entity<Fornecedor>(e =>
         {
-            e.HasIndex(f => new { f.GaragemId, f.CNPJ }).IsUnique();
+            e.HasIndex(f => new { f.OficinaId, f.CNPJ }).IsUnique();
 
-            e.HasOne(f => f.Garagem)
+            e.HasOne(f => f.Oficina)
                 .WithMany(g => g.Fornecedores)
-                .HasForeignKey(f => f.GaragemId)
+                .HasForeignKey(f => f.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Peca>(e =>
         {
-            e.HasIndex(p => new { p.GaragemId, p.Nome }).IsUnique();
+            e.HasIndex(p => new { p.OficinaId, p.Nome }).IsUnique();
             e.Property(p => p.PrecoVenda).HasPrecision(10, 2);
 
-            e.HasOne(p => p.Garagem)
+            e.HasOne(p => p.Oficina)
                 .WithMany(g => g.Pecas)
-                .HasForeignKey(p => p.GaragemId)
+                .HasForeignKey(p => p.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<OrdemServico>(e =>
         {
-            e.HasOne(o => o.Garagem)
+            e.HasOne(o => o.Oficina)
                 .WithMany(g => g.OrdensServico)
-                .HasForeignKey(o => o.GaragemId)
+                .HasForeignKey(o => o.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasOne(o => o.Veiculo)
@@ -133,9 +133,9 @@ public class GRAContext : DbContext
         {
             e.HasIndex(o => o.OrdemServicoId).IsUnique();
 
-            e.HasOne(o => o.Garagem)
+            e.HasOne(o => o.Oficina)
                 .WithMany()
-                .HasForeignKey(o => o.GaragemId)
+                .HasForeignKey(o => o.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasOne(o => o.OrdemServico)
@@ -148,9 +148,9 @@ public class GRAContext : DbContext
         {
             e.HasIndex(os => new { os.OrdemServicoId, os.ServicoId }).IsUnique();
 
-            e.HasOne(os => os.Garagem)
+            e.HasOne(os => os.Oficina)
                 .WithMany()
-                .HasForeignKey(os => os.GaragemId)
+                .HasForeignKey(os => os.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasOne(os => os.OrdemServico)
@@ -169,9 +169,9 @@ public class GRAContext : DbContext
             e.Property(m => m.PrecoUnitario).HasPrecision(10, 2);
             e.Property(m => m.Tipo).HasConversion<string>();
 
-            e.HasOne(m => m.Garagem)
+            e.HasOne(m => m.Oficina)
                 .WithMany()
-                .HasForeignKey(m => m.GaragemId)
+                .HasForeignKey(m => m.OficinaId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasOne(m => m.Peca)

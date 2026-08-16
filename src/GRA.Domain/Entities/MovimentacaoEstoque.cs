@@ -5,8 +5,8 @@ namespace GRA.Domain.Entities;
 
 public class MovimentacaoEstoque : Entity
 {
-    public int GaragemId { get; set; }
-    public Garagem? Garagem { get; set; }
+    public int OficinaId { get; set; }
+    public Oficina? Oficina { get; set; }
 
     public int PecaId { get; set; }
     public Peca? Peca { get; set; }

@@ -15,8 +15,7 @@ public class Veiculo : Entity
     public int Quilometragem { get; set; }
     public string? Observacoes { get; set; }
     public bool Ativo { get; set; } = true;
-
-    public Cliente? Cliente { get; set; }
+    public required Cliente Cliente { get; set; }
     public Oficina Oficina { get; set; } = new();
     public ICollection<OrdemServico> OrdensServico { get; set; } = [];
 }

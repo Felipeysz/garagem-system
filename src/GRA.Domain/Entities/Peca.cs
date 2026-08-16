@@ -4,8 +4,8 @@ namespace GRA.Domain.Entities;
 
 public class Peca : Entity
 {
-    public int GaragemId { get; set; }
-    public Garagem Garagem { get; set; } = new();
+    public int OficinaId { get; set; }
+    public Oficina Oficina { get; set; } = new();
 
     public required string Nome { get; set; }
     public string? Descricao { get; set; }

@@ -4,8 +4,8 @@ namespace GRA.Domain.Entities;
 
 public class OrdemServico : Entity
 {
-    public int GaragemId { get; set; }
-    public Garagem? Garagem { get; set; }
+    public int OficinaId { get; set; }
+    public Oficina? Oficina { get; set; }
 
     public int VeiculoId { get; set; }
     public Veiculo? Veiculo { get; set; }
