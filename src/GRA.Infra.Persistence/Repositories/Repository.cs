@@ -1,5 +1,4 @@
-﻿// GRA.Infra.Persistence/Repositories/Repository.cs
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using GRA.Domain.Entities.Commom;
 using GRA.Domain.Repositories;
 using GRA.Infra.Persistence.Context;
