@@ -3,7 +3,7 @@ using GRA.Domain.Repositories;
 using GRA.Infra.Persistence.Context;
 using GRA.Infra.Persistence.Repositories;
 
-public class ClienteRepository : RepositoryBase<Cliente>, IClienteRepository
+public class ClienteRepository : Repository<Cliente>, IClienteRepository
 {
     public ClienteRepository(GRAContext context) : base(context)
     {

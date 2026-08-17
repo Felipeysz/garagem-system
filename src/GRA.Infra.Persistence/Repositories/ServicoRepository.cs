@@ -3,7 +3,7 @@ using GRA.Domain.Repositories;
 using GRA.Infra.Persistence.Context;
 using GRA.Infra.Persistence.Repositories;
 
-public class ServicoRepository : RepositoryBase<Servico>, IServicoRepository
+public class ServicoRepository : Repository<Servico>, IServicoRepository
 {
     public ServicoRepository(GRAContext context) : base(context)
     {

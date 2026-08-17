@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿// GRA.Infra.Persistence/Repositories/Repository.cs
+using System.Linq.Expressions;
 using GRA.Domain.Entities.Commom;
 using GRA.Domain.Repositories;
 using GRA.Infra.Persistence.Context;
@@ -6,12 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GRA.Infra.Persistence.Repositories;
 
-public class RepositoryBase<T> : IRepository<T> where T : Entity
+public class Repository<T> : IRepository<T> where T : Entity
 {
     protected readonly GRAContext Context;
     protected readonly DbSet<T> DbSet;
 
-    public RepositoryBase(GRAContext context)
+    public Repository(GRAContext context)
     {
         Context = context;
         DbSet = context.Set<T>();

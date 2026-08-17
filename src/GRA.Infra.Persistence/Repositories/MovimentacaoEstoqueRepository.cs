@@ -3,7 +3,7 @@ using GRA.Domain.Repositories;
 using GRA.Infra.Persistence.Context;
 using GRA.Infra.Persistence.Repositories;
 
-public class MovimentacaoEstoqueRepository : RepositoryBase<MovimentacaoEstoque>, IMovimentacaoEstoqueRepository
+public class MovimentacaoEstoqueRepository : Repository<MovimentacaoEstoque>, IMovimentacaoEstoqueRepository
 {
     public MovimentacaoEstoqueRepository(GRAContext context) : base(context)
     {
