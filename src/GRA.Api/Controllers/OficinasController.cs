@@ -54,7 +54,6 @@ public class OficinasController : ControllerBase
 
     [HttpPatch("{id:long}/inativar")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Inativar(long id)
     {
@@ -62,10 +61,6 @@ public class OficinasController : ControllerBase
         {
             await _oficinaAppService.InativarAsync(id);
             return NoContent();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return NotFound(new { mensagem = ex.Message });
         }
         catch (Exception ex)
         {
