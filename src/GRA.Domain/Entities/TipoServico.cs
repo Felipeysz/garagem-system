@@ -1,11 +1,11 @@
+using GRA.Domain.Entities.Commom;
+
 namespace GRA.Domain.Entities;
 
-public class TipoServico
+public class TipoServico : Entity
 {
-    public int Id { get; set; }
-
-    public int GaragemId { get; set; }
-    public Garagem? Garagem { get; set; }
+    public long OficinaId { get; set; }
+    public Oficina? Oficina { get; set; }
 
     public required string Nome { get; set; }
     public string? Descricao { get; set; }

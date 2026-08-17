@@ -1,16 +1,16 @@
+using GRA.Domain.Entities.Commom;
+
 namespace GRA.Domain.Entities;
 
-public class OrdemServico
+public class OrdemServico : Entity
 {
-    public int Id { get; set; }
+    public long OficinaId { get; set; }
+    public Oficina? Oficina { get; set; }
 
-    public int GaragemId { get; set; }
-    public Garagem? Garagem { get; set; }
-
-    public int VeiculoId { get; set; }
+    public long VeiculoId { get; set; }
     public Veiculo? Veiculo { get; set; }
 
-    public int FuncionarioResponsavelId { get; set; }
+    public long FuncionarioResponsavelId { get; set; }
     public Funcionario? FuncionarioResponsavel { get; set; }
 
     public DateTime DataAbertura { get; set; } = DateTime.UtcNow;

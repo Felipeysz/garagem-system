@@ -1,14 +1,11 @@
+using GRA.Domain.Entities.Commom;
+
 namespace GRA.Domain.Entities;
 
-public class Cliente
+public class Cliente : Entity
 {
-    public int Id { get; set; }
-
-    public int GaragemId { get; set; }
-    public Garagem? Garagem { get; set; }
-
-    public required string Nome { get; set; }
-    public required string CPF { get; set; }
+    public string Nome { get; set; }
+    public string CPF { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
