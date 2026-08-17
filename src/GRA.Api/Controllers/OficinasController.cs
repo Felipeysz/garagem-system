@@ -17,16 +17,24 @@ public class OficinasController : ControllerBase
 
     [HttpPost]
     [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Cadastrar([FromBody] CadastrarOficinaDTO dto)
     {
-        var oficina = await _oficinaAppService.CadastrarAsync(dto);
-
-        return CreatedAtAction(nameof(BuscarPorSlug), new { slug = oficina.Slug }, oficina);
+        try
+        {
+            var oficina = await _oficinaAppService.CadastrarAsync(dto);
+            return CreatedAtAction(nameof(BuscarPorSlug), new { slug = oficina.Slug }, oficina);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao cadastrar oficina.", detalhe = ex.Message });
+        }
     }
 
     [HttpPut("{id:long}")]
     [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Atualizar(long id, [FromBody] AtualizarOficinaDTO dto)
     {
         try
@@ -38,11 +46,16 @@ public class OficinasController : ControllerBase
         {
             return NotFound(new { mensagem = ex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao atualizar oficina.", detalhe = ex.Message });
+        }
     }
 
     [HttpPatch("{id:long}/inativar")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Inativar(long id)
     {
         try
@@ -54,25 +67,43 @@ public class OficinasController : ControllerBase
         {
             return NotFound(new { mensagem = ex.Message });
         }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao inativar oficina.", detalhe = ex.Message });
+        }
     }
 
     [HttpGet("slug/{slug}")]
     [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> BuscarPorSlug(string slug)
     {
-        var oficina = await _oficinaAppService.BuscarPorSlugAsync(slug);
-
-        return oficina is null ? NotFound() : Ok(oficina);
+        try
+        {
+            var oficina = await _oficinaAppService.BuscarPorSlugAsync(slug);
+            return oficina is null ? NotFound() : Ok(oficina);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao buscar oficina por slug.", detalhe = ex.Message });
+        }
     }
 
     [HttpGet("nome/{nome}")]
     [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> BuscarPorNome(string nome)
     {
-        var oficina = await _oficinaAppService.BuscarPorNomeAsync(nome);
-
-        return oficina is null ? NotFound() : Ok(oficina);
+        try
+        {
+            var oficina = await _oficinaAppService.BuscarPorNomeAsync(nome);
+            return oficina is null ? NotFound() : Ok(oficina);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao buscar oficina por nome.", detalhe = ex.Message });
+        }
     }
 }
