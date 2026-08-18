@@ -8,7 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GRA.Application\GRA.Application.csproj" />
-    <ProjectReference Include="..\GRA.Infra.Persistence\GRA.Infra.Persistence.csproj" />
+    <ProjectReference Include="..\GRA.Infra.CrossCutting.IoC\GRA.Infra.CrossCutting.IoC.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
 </Project>
