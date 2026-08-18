@@ -1,15 +1,14 @@
+using GRA.Application.Interfaces;
+using GRA.Application.Services;
 using GRA.Infra.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddInfraPersistence();
+builder.Services.AddScoped<IOficinaAppService, OficinaAppService>();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
 

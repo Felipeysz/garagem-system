@@ -33,10 +33,11 @@ public class OficinaAppService : IOficinaAppService
         return MapToDTO(oficina);
     }
 
-    public async Task<OficinaDTO> AtualizarAsync(long id, AtualizarOficinaDTO dto)
+    public async Task<OficinaDTO?> AtualizarAsync(long id, AtualizarOficinaDTO dto)
     {
-        var oficina = await _oficinaRepository.GetByIdAsync(id)
-            ?? throw new InvalidOperationException("Oficina não encontrada.");
+        var oficina = await _oficinaRepository.GetByIdAsync(id);
+        if (oficina is null)
+            return null;
 
         oficina.Nome = dto.Nome;
         oficina.CNPJ = dto.CNPJ;
@@ -50,15 +51,18 @@ public class OficinaAppService : IOficinaAppService
         return MapToDTO(oficina);
     }
 
-    public async Task InativarAsync(long id)
+    public async Task<bool> InativarAsync(long id)
     {
-        var oficina = await _oficinaRepository.GetByIdAsync(id)
-            ?? throw new InvalidOperationException("Oficina não encontrada.");
+        var oficina = await _oficinaRepository.GetByIdAsync(id);
+        if (oficina is null)
+            return false;
 
         oficina.Ativo = false;
 
         _oficinaRepository.Update(oficina);
         await _oficinaRepository.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<OficinaDTO?> BuscarPorSlugAsync(string slug)
