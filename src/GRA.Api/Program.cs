@@ -1,12 +1,9 @@
-using GRA.Application.Interfaces;
-using GRA.Application.Services;
-using GRA.Infra.Persistence;
+using GRA.Infra.CrossCutting.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddInfraPersistence();
-builder.Services.AddScoped<IOficinaAppService, OficinaAppService>();
+builder.Services.AddCrossCutting();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

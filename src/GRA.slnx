@@ -11,4 +11,7 @@
   <Folder Name="/4 - Infrastructure/">
     <Project Path="GRA.Infra.Persistence/GRA.Infra.Persistence.csproj" />
   </Folder>
+  <Folder Name="/4 - Infrastructure/Crosscutting/">
+    <Project Path="GRA.Infra.CrossCutting.IoC/GRA.Infra.CrossCutting.IoC.csproj" />
+  </Folder>
 </Solution>
