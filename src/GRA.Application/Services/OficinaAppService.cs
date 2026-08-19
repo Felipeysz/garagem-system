@@ -54,14 +54,17 @@ public class OficinaAppService : IOficinaAppService
         }
         else
         {
-            oficina.Endereco.Logradouro = dto.Endereco.Logradouro;
-            oficina.Endereco.Numero = dto.Endereco.Numero;
-            oficina.Endereco.Complemento = dto.Endereco.Complemento;
-            oficina.Endereco.Bairro = dto.Endereco.Bairro;
-            oficina.Endereco.Cidade = dto.Endereco.Cidade;
-            oficina.Endereco.Estado = dto.Endereco.Estado;
-            oficina.Endereco.CEP = dto.Endereco.CEP;
+            var endereco = dto.Endereco.Value;
+
+            oficina.Endereco.Logradouro = endereco.Logradouro;
+            oficina.Endereco.Numero = endereco.Numero;
+            oficina.Endereco.Complemento = endereco.Complemento;
+            oficina.Endereco.Bairro = endereco.Bairro;
+            oficina.Endereco.Cidade = endereco.Cidade;
+            oficina.Endereco.Estado = endereco.Estado;
+            oficina.Endereco.CEP = endereco.CEP;
         }
+
 
         _oficinaRepository.Update(oficina);
         await _oficinaRepository.SaveChangesAsync();
@@ -128,29 +131,29 @@ public class OficinaAppService : IOficinaAppService
         oficina.Ativo);
 
     private static EnderecoDTO? MapToDTO(Endereco? endereco) =>
-        endereco is null
-            ? null
-            : new EnderecoDTO(
-                endereco.Logradouro,
-                endereco.Numero,
-                endereco.Complemento,
-                endereco.Bairro,
-                endereco.Cidade,
-                endereco.Estado,
-                endereco.CEP);
+    endereco is null
+        ? null
+        : new EnderecoDTO(
+            endereco.Logradouro,
+            endereco.Numero,
+            endereco.Complemento,
+            endereco.Bairro,
+            endereco.Cidade,
+            endereco.Estado,
+            endereco.CEP);
 
     private static Endereco? MapToEntity(EnderecoDTO? dto) =>
         dto is null
             ? null
             : new Endereco
             {
-                Logradouro = dto.Logradouro,
-                Numero = dto.Numero,
-                Complemento = dto.Complemento,
-                Bairro = dto.Bairro,
-                Cidade = dto.Cidade,
-                Estado = dto.Estado,
-                CEP = dto.CEP
+                Logradouro = dto.Value.Logradouro,
+                Numero = dto.Value.Numero,
+                Complemento = dto.Value.Complemento,
+                Bairro = dto.Value.Bairro,
+                Cidade = dto.Value.Cidade,
+                Estado = dto.Value.Estado,
+                CEP = dto.Value.CEP
             };
 
     private static string GerarSlug(string nome)

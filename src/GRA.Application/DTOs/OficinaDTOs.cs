@@ -1,6 +1,6 @@
 ﻿namespace GRA.Application.DTOs;
 
-public record EnderecoDTO(
+public readonly record struct EnderecoDTO(
     string Logradouro,
     string Numero,
     string? Complemento,
