@@ -8,6 +8,7 @@ public interface IOficinaAppService
 
     Task<OficinaDTO?> AtualizarAsync(long id, AtualizarOficinaDTO dto);
 
+    Task<bool> AtivarAsync(long id);
     Task<bool> InativarAsync(long id);
 
     Task<OficinaDTO?> BuscarPorSlugAsync(string slug);

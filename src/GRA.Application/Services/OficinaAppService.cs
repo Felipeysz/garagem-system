@@ -51,6 +51,20 @@ public class OficinaAppService : IOficinaAppService
         return MapToDTO(oficina);
     }
 
+    public async Task<bool> AtivarAsync(long id)
+    {
+        var oficina = await _oficinaRepository.GetByIdAsync(id);
+        if (oficina is null)
+            return false;
+
+        oficina.Ativo = true;
+
+        _oficinaRepository.Update(oficina);
+        await _oficinaRepository.SaveChangesAsync();
+
+        return true;
+    }
+
     public async Task<bool> InativarAsync(long id)
     {
         var oficina = await _oficinaRepository.GetByIdAsync(id);
@@ -70,6 +84,7 @@ public class OficinaAppService : IOficinaAppService
         var oficinas = await _oficinaRepository.GetAllAsync();
 
         var oficina = oficinas.FirstOrDefault(o =>
+            o.Ativo &&
             string.Equals(GerarSlug(o.Nome), slug, StringComparison.OrdinalIgnoreCase));
 
         return oficina is null ? null : MapToDTO(oficina);
@@ -77,7 +92,7 @@ public class OficinaAppService : IOficinaAppService
 
     public async Task<OficinaDTO?> BuscarPorNomeAsync(string nome)
     {
-        var oficina = await _oficinaRepository.SingleAsync(o => o.Nome == nome);
+        var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
 
         return oficina is null ? null : MapToDTO(oficina);
     }

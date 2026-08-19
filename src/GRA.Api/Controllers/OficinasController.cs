@@ -48,6 +48,22 @@ public class OficinasController : ControllerBase
         }
     }
 
+    [HttpPatch("{id:long}/ativar")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Ativar(long id)
+    {
+        try
+        {
+            var sucesso = await _oficinaAppService.AtivarAsync(id);
+            return sucesso ? NoContent() : NotFound();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao ativar oficina.", detalhe = ex.Message });
+        }
+    }
+
     [HttpPatch("{id:long}/inativar")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
