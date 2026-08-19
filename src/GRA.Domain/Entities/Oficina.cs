@@ -8,7 +8,7 @@ public class Oficina : Entity
     public string CNPJ { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
-    public string? Endereco { get; set; }
+    public Endereco? Endereco { get; set; }
     public DateTime DataCadastro { get; set; } = DateTime.UtcNow;
     public bool Ativo { get; set; } = true;
 

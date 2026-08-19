@@ -24,7 +24,7 @@ public class OficinaAppService : IOficinaAppService
             CNPJ = dto.CNPJ,
             Telefone = dto.Telefone,
             Email = dto.Email,
-            Endereco = dto.Endereco
+            Endereco = MapToEntity(dto.Endereco)
         };
 
         await _oficinaRepository.AddAsync(oficina);
@@ -43,7 +43,25 @@ public class OficinaAppService : IOficinaAppService
         oficina.CNPJ = dto.CNPJ;
         oficina.Telefone = dto.Telefone;
         oficina.Email = dto.Email;
-        oficina.Endereco = dto.Endereco;
+
+        if (dto.Endereco is null)
+        {
+            oficina.Endereco = null;
+        }
+        else if (oficina.Endereco is null)
+        {
+            oficina.Endereco = MapToEntity(dto.Endereco);
+        }
+        else
+        {
+            oficina.Endereco.Logradouro = dto.Endereco.Logradouro;
+            oficina.Endereco.Numero = dto.Endereco.Numero;
+            oficina.Endereco.Complemento = dto.Endereco.Complemento;
+            oficina.Endereco.Bairro = dto.Endereco.Bairro;
+            oficina.Endereco.Cidade = dto.Endereco.Cidade;
+            oficina.Endereco.Estado = dto.Endereco.Estado;
+            oficina.Endereco.CEP = dto.Endereco.CEP;
+        }
 
         _oficinaRepository.Update(oficina);
         await _oficinaRepository.SaveChangesAsync();
@@ -98,16 +116,42 @@ public class OficinaAppService : IOficinaAppService
     }
 
     private static OficinaDTO MapToDTO(Oficina oficina) =>
-        new(
-            oficina.Id,
-            oficina.Nome,
-            GerarSlug(oficina.Nome),
-            oficina.CNPJ,
-            oficina.Telefone,
-            oficina.Email,
-            oficina.Endereco,
-            oficina.DataCadastro,
-            oficina.Ativo);
+    new(
+        oficina.Id,
+        oficina.Nome,
+        GerarSlug(oficina.Nome),
+        oficina.CNPJ,
+        oficina.Telefone,
+        oficina.Email,
+        MapToDTO(oficina.Endereco),
+        oficina.DataCadastro,
+        oficina.Ativo);
+
+    private static EnderecoDTO? MapToDTO(Endereco? endereco) =>
+        endereco is null
+            ? null
+            : new EnderecoDTO(
+                endereco.Logradouro,
+                endereco.Numero,
+                endereco.Complemento,
+                endereco.Bairro,
+                endereco.Cidade,
+                endereco.Estado,
+                endereco.CEP);
+
+    private static Endereco? MapToEntity(EnderecoDTO? dto) =>
+        dto is null
+            ? null
+            : new Endereco
+            {
+                Logradouro = dto.Logradouro,
+                Numero = dto.Numero,
+                Complemento = dto.Complemento,
+                Bairro = dto.Bairro,
+                Cidade = dto.Cidade,
+                Estado = dto.Estado,
+                CEP = dto.CEP
+            };
 
     private static string GerarSlug(string nome)
     {
@@ -131,4 +175,6 @@ public class OficinaAppService : IOficinaAppService
 
         return slug.Trim('-');
     }
+
+    
 }

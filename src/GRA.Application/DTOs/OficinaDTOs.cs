@@ -1,18 +1,27 @@
 ﻿namespace GRA.Application.DTOs;
 
+public record EnderecoDTO(
+    string Logradouro,
+    string Numero,
+    string? Complemento,
+    string Bairro,
+    string Cidade,
+    string Estado,
+    string CEP);
+
 public record CadastrarOficinaDTO(
     string Nome,
     string CNPJ,
     string? Telefone,
     string? Email,
-    string? Endereco);
+    EnderecoDTO? Endereco);
 
 public record AtualizarOficinaDTO(
     string Nome,
     string CNPJ,
     string? Telefone,
     string? Email,
-    string? Endereco);
+    EnderecoDTO? Endereco);
 
 public record OficinaDTO(
     long Id,
@@ -21,6 +30,6 @@ public record OficinaDTO(
     string CNPJ,
     string? Telefone,
     string? Email,
-    string? Endereco,
+    EnderecoDTO? Endereco,
     DateTime DataCadastro,
     bool Ativo);

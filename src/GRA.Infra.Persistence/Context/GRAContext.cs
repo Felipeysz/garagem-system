@@ -10,6 +10,7 @@ public class GRAContext : DbContext
     }
 
     public DbSet<Oficina> Oficinas => Set<Oficina>();
+    public DbSet<Endereco> Enderecos => Set<Endereco>();
     public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<Veiculo> Veiculos => Set<Veiculo>();
     public DbSet<Funcionario> Funcionarios => Set<Funcionario>();
@@ -21,4 +22,11 @@ public class GRAContext : DbContext
     public DbSet<OrdemServicoServico> OrdensServicoServico => Set<OrdemServicoServico>();
     public DbSet<Orcamento> Orcamentos => Set<Orcamento>();
     public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(GRAContext).Assembly);
+
+        base.OnModelCreating(modelBuilder);
+    }
 }
