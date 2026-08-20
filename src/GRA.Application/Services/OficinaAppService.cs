@@ -18,19 +18,13 @@ public class OficinaAppService : IOficinaAppService
 
     public async Task<OficinaDTO> CadastrarAsync(CadastrarOficinaDTO dto)
     {
-        var oficina = new Oficina
-        {
-            Nome = dto.Nome,
-            CNPJ = dto.CNPJ,
-            Telefone = dto.Telefone,
-            Email = dto.Email,
-            Endereco = dto.Endereco
-        };
+        Oficina oficina = dto;
+        oficina.Slug = GerarSlug(oficina.Nome);
 
         await _oficinaRepository.AddAsync(oficina);
         await _oficinaRepository.SaveChangesAsync();
 
-        return MapToDTO(oficina);
+        return oficina;
     }
 
     public async Task<OficinaDTO?> AtualizarAsync(long id, AtualizarOficinaDTO dto)
@@ -40,15 +34,18 @@ public class OficinaAppService : IOficinaAppService
             return null;
 
         oficina.Nome = dto.Nome;
+        oficina.Slug = GerarSlug(dto.Nome);
         oficina.CNPJ = dto.CNPJ;
         oficina.Telefone = dto.Telefone;
         oficina.Email = dto.Email;
-        oficina.Endereco = dto.Endereco;
+
+        if (dto.Endereco is not null)
+            oficina.Endereco = dto.Endereco.Value;
 
         _oficinaRepository.Update(oficina);
         await _oficinaRepository.SaveChangesAsync();
 
-        return MapToDTO(oficina);
+        return oficina;
     }
 
     public async Task<bool> AtivarAsync(long id)
@@ -81,33 +78,17 @@ public class OficinaAppService : IOficinaAppService
 
     public async Task<OficinaDTO?> BuscarPorSlugAsync(string slug)
     {
-        var oficinas = await _oficinaRepository.GetAllAsync();
+        var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Slug == slug);
 
-        var oficina = oficinas.FirstOrDefault(o =>
-            o.Ativo &&
-            string.Equals(GerarSlug(o.Nome), slug, StringComparison.OrdinalIgnoreCase));
-
-        return oficina is null ? null : MapToDTO(oficina);
+        return oficina is null ? null : oficina;
     }
 
     public async Task<OficinaDTO?> BuscarPorNomeAsync(string nome)
     {
         var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
 
-        return oficina is null ? null : MapToDTO(oficina);
+        return oficina is null ? null : oficina;
     }
-
-    private static OficinaDTO MapToDTO(Oficina oficina) =>
-        new(
-            oficina.Id,
-            oficina.Nome,
-            GerarSlug(oficina.Nome),
-            oficina.CNPJ,
-            oficina.Telefone,
-            oficina.Email,
-            oficina.Endereco,
-            oficina.DataCadastro,
-            oficina.Ativo);
 
     private static string GerarSlug(string nome)
     {
