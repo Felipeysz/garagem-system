@@ -24,21 +24,12 @@ public class FuncionarioAppService : IFuncionarioAppService
         if (oficina is null)
             return null;
 
-        var funcionario = new Funcionario
-        {
-            OficinaId = dto.OficinaId,
-            Nome = dto.Nome,
-            CPF = dto.CPF,
-            Telefone = dto.Telefone,
-            Email = dto.Email,
-            Cargo = dto.Cargo,
-            DataAdmissao = dto.DataAdmissao
-        };
+        Funcionario funcionario = dto;
 
         await _funcionarioRepository.AddAsync(funcionario);
         await _funcionarioRepository.SaveChangesAsync();
 
-        return MapToDTO(funcionario);
+        return funcionario;
     }
 
     public async Task<FuncionarioDTO?> AtualizarAsync(long id, AtualizarFuncionarioDTO dto)
@@ -57,7 +48,7 @@ public class FuncionarioAppService : IFuncionarioAppService
         _funcionarioRepository.Update(funcionario);
         await _funcionarioRepository.SaveChangesAsync();
 
-        return MapToDTO(funcionario);
+        return funcionario;
     }
 
     public async Task<bool> DeletarAsync(long id)
@@ -76,18 +67,9 @@ public class FuncionarioAppService : IFuncionarioAppService
     {
         var funcionario = await _funcionarioRepository.GetByIdAsync(id);
 
-        return funcionario is null ? null : MapToDTO(funcionario);
-    }
+        if (funcionario is null)
+            return null;
 
-    private static FuncionarioDTO MapToDTO(Funcionario funcionario) =>
-        new(
-            funcionario.Id,
-            funcionario.OficinaId,
-            funcionario.Nome,
-            funcionario.CPF,
-            funcionario.Telefone,
-            funcionario.Email,
-            funcionario.Cargo,
-            funcionario.DataAdmissao,
-            funcionario.Ativo);
+        return funcionario;
+    }
 }

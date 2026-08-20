@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using GRA.Application.DTOs;
+﻿using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
@@ -16,7 +14,7 @@ public class OficinaAppService : IOficinaAppService
         _oficinaRepository = oficinaRepository;
     }
 
-    public async Task<OficinaDTO> CadastrarAsync(CadastrarOficinaDTO dto)
+    public async Task<OficinaDto> CadastrarAsync(CadastrarOficinaDto dto)
     {
         Oficina oficina = dto;
         oficina.Slug = GerarSlug(oficina.Nome);
@@ -27,7 +25,7 @@ public class OficinaAppService : IOficinaAppService
         return oficina;
     }
 
-    public async Task<OficinaDTO?> AtualizarAsync(long id, AtualizarOficinaDTO dto)
+    public async Task<OficinaDto?> AtualizarAsync(long id, AtualizarOficinaDto dto)
     {
         var oficina = await _oficinaRepository.GetByIdAsync(id);
         if (oficina is null)
@@ -76,34 +74,40 @@ public class OficinaAppService : IOficinaAppService
         return true;
     }
 
-    public async Task<OficinaDTO?> BuscarPorSlugAsync(string slug)
+    public async Task<OficinaDto?> BuscarPorSlugAsync(string slug)
     {
         var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Slug == slug);
 
-        return oficina is null ? null : oficina;
+        if (oficina is null)
+            return null;
+
+        return oficina;
     }
 
-    public async Task<OficinaDTO?> BuscarPorNomeAsync(string nome)
+    public async Task<OficinaDto?> BuscarPorNomeAsync(string nome)
     {
         var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
 
-        return oficina is null ? null : oficina;
+        if (oficina is null)
+            return null;
+
+        return oficina;
     }
 
     private static string GerarSlug(string nome)
     {
-        var normalizado = nome.Normalize(NormalizationForm.FormD);
-        var semAcentos = new StringBuilder();
+        var normalizado = nome.Normalize(System.Text.NormalizationForm.FormD);
+        var semAcentos = new System.Text.StringBuilder();
 
         foreach (var c in normalizado)
         {
-            var categoria = CharUnicodeInfo.GetUnicodeCategory(c);
-            if (categoria != UnicodeCategory.NonSpacingMark)
+            var categoria = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (categoria != System.Globalization.UnicodeCategory.NonSpacingMark)
                 semAcentos.Append(c);
         }
 
         var slug = semAcentos.ToString()
-            .Normalize(NormalizationForm.FormC)
+            .Normalize(System.Text.NormalizationForm.FormC)
             .ToLowerInvariant()
             .Trim();
 

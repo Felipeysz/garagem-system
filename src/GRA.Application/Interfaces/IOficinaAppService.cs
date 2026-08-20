@@ -4,14 +4,15 @@ namespace GRA.Application.Interfaces;
 
 public interface IOficinaAppService
 {
-    Task<OficinaDTO> CadastrarAsync(CadastrarOficinaDTO dto);
+    Task<OficinaDto> CadastrarAsync(CadastrarOficinaDto dto);
 
-    Task<OficinaDTO?> AtualizarAsync(long id, AtualizarOficinaDTO dto);
+    Task<OficinaDto?> AtualizarAsync(long id, AtualizarOficinaDto dto);
 
     Task<bool> AtivarAsync(long id);
+
     Task<bool> InativarAsync(long id);
 
-    Task<OficinaDTO?> BuscarPorSlugAsync(string slug);
+    Task<OficinaDto?> BuscarPorSlugAsync(string slug);
 
-    Task<OficinaDTO?> BuscarPorNomeAsync(string nome);
+    Task<OficinaDto?> BuscarPorNomeAsync(string nome);
 }
