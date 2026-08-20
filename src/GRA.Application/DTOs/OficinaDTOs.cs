@@ -1,6 +1,4 @@
-﻿using System.Globalization;
-using System.Text;
-using GRA.Domain.Entities;
+﻿using GRA.Domain.Entities;
 
 namespace GRA.Application.DTOs;
 
@@ -72,34 +70,11 @@ public record OficinaDTO(
     public static implicit operator OficinaDTO(Oficina oficina) => new(
         oficina.Id,
         oficina.Nome,
-        GerarSlug(oficina.Nome),
+        oficina.Slug,
         oficina.CNPJ,
         oficina.Telefone,
         oficina.Email,
         oficina.Endereco is null ? null : (EnderecoDTO)oficina.Endereco,
         oficina.DataCadastro,
         oficina.Ativo);
-
-    public static string GerarSlug(string nome)
-    {
-        var normalizado = nome.Normalize(NormalizationForm.FormD);
-        var semAcentos = new StringBuilder();
-
-        foreach (var c in normalizado)
-        {
-            var categoria = CharUnicodeInfo.GetUnicodeCategory(c);
-            if (categoria != UnicodeCategory.NonSpacingMark)
-                semAcentos.Append(c);
-        }
-
-        var slug = semAcentos.ToString()
-            .Normalize(NormalizationForm.FormC)
-            .ToLowerInvariant()
-            .Trim();
-
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\s-]", "");
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[\s-]+", "-");
-
-        return slug.Trim('-');
-    }
 }

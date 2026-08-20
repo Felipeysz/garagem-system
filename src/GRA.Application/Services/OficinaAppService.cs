@@ -1,4 +1,6 @@
-﻿using GRA.Application.DTOs;
+﻿using System.Globalization;
+using System.Text;
+using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
@@ -17,6 +19,7 @@ public class OficinaAppService : IOficinaAppService
     public async Task<OficinaDTO> CadastrarAsync(CadastrarOficinaDTO dto)
     {
         Oficina oficina = dto;
+        oficina.Slug = GerarSlug(oficina.Nome);
 
         await _oficinaRepository.AddAsync(oficina);
         await _oficinaRepository.SaveChangesAsync();
@@ -31,30 +34,13 @@ public class OficinaAppService : IOficinaAppService
             return null;
 
         oficina.Nome = dto.Nome;
+        oficina.Slug = GerarSlug(dto.Nome);
         oficina.CNPJ = dto.CNPJ;
         oficina.Telefone = dto.Telefone;
         oficina.Email = dto.Email;
 
-        if (dto.Endereco is null)
-        {
-            oficina.Endereco = null;
-        }
-        else if (oficina.Endereco is null)
-        {
+        if (dto.Endereco is not null)
             oficina.Endereco = dto.Endereco.Value;
-        }
-        else
-        {
-            var endereco = dto.Endereco.Value;
-
-            oficina.Endereco.Logradouro = endereco.Logradouro;
-            oficina.Endereco.Numero = endereco.Numero;
-            oficina.Endereco.Complemento = endereco.Complemento;
-            oficina.Endereco.Bairro = endereco.Bairro;
-            oficina.Endereco.Cidade = endereco.Cidade;
-            oficina.Endereco.Estado = endereco.Estado;
-            oficina.Endereco.CEP = endereco.CEP;
-        }
 
         _oficinaRepository.Update(oficina);
         await _oficinaRepository.SaveChangesAsync();
@@ -92,11 +78,7 @@ public class OficinaAppService : IOficinaAppService
 
     public async Task<OficinaDTO?> BuscarPorSlugAsync(string slug)
     {
-        var oficinas = await _oficinaRepository.GetAllAsync();
-
-        var oficina = oficinas.FirstOrDefault(o =>
-            o.Ativo &&
-            string.Equals(OficinaDTO.GerarSlug(o.Nome), slug, StringComparison.OrdinalIgnoreCase));
+        var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Slug == slug);
 
         return oficina is null ? null : oficina;
     }
@@ -106,5 +88,28 @@ public class OficinaAppService : IOficinaAppService
         var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
 
         return oficina is null ? null : oficina;
+    }
+
+    private static string GerarSlug(string nome)
+    {
+        var normalizado = nome.Normalize(NormalizationForm.FormD);
+        var semAcentos = new StringBuilder();
+
+        foreach (var c in normalizado)
+        {
+            var categoria = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (categoria != UnicodeCategory.NonSpacingMark)
+                semAcentos.Append(c);
+        }
+
+        var slug = semAcentos.ToString()
+            .Normalize(NormalizationForm.FormC)
+            .ToLowerInvariant()
+            .Trim();
+
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\s-]", "");
+        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[\s-]+", "-");
+
+        return slug.Trim('-');
     }
 }
