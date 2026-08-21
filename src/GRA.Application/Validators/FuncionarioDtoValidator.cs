@@ -3,9 +3,9 @@ using GRA.Application.DTOs;
 
 namespace GRA.Application.Validators;
 
-public class CadastrarFuncionarioDTOValidator : AbstractValidator<CadastrarFuncionarioDTO>
+public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFuncionarioDto>
 {
-    public CadastrarFuncionarioDTOValidator()
+    public CadastrarFuncionarioDtoValidator()
     {
         RuleFor(f => f.OficinaId)
             .GreaterThan(0).WithMessage("OficinaId é obrigatório.");
@@ -37,9 +37,9 @@ public class CadastrarFuncionarioDTOValidator : AbstractValidator<CadastrarFunci
     }
 }
 
-public class AtualizarFuncionarioDTOValidator : AbstractValidator<AtualizarFuncionarioDTO>
+public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFuncionarioDto>
 {
-    public AtualizarFuncionarioDTOValidator()
+    public AtualizarFuncionarioDtoValidator()
     {
         RuleFor(f => f.Nome)
             .NotEmpty().WithMessage("Nome é obrigatório.")

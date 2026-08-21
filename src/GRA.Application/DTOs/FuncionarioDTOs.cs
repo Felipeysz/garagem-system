@@ -2,7 +2,7 @@
 
 namespace GRA.Application.DTOs;
 
-public record CadastrarFuncionarioDTO(
+public record CadastrarFuncionarioDto(
     long OficinaId,
     string Nome,
     string CPF,
@@ -11,7 +11,7 @@ public record CadastrarFuncionarioDTO(
     string Cargo,
     DateOnly DataAdmissao)
 {
-    public static implicit operator Funcionario(CadastrarFuncionarioDTO dto) => new()
+    public static implicit operator Funcionario(CadastrarFuncionarioDto dto) => new()
     {
         OficinaId = dto.OficinaId,
         Nome = dto.Nome,
@@ -23,7 +23,7 @@ public record CadastrarFuncionarioDTO(
     };
 }
 
-public record AtualizarFuncionarioDTO(
+public record AtualizarFuncionarioDto(
     string Nome,
     string CPF,
     string? Telefone,
@@ -31,7 +31,7 @@ public record AtualizarFuncionarioDTO(
     string Cargo,
     DateOnly DataAdmissao);
 
-public record FuncionarioDTO(
+public record FuncionarioDto(
     long Id,
     long OficinaId,
     string Nome,
@@ -42,7 +42,7 @@ public record FuncionarioDTO(
     DateOnly DataAdmissao,
     bool Ativo)
 {
-    public static implicit operator FuncionarioDTO(Funcionario funcionario) => new(
+    public static implicit operator FuncionarioDto(Funcionario funcionario) => new(
         funcionario.Id,
         funcionario.OficinaId,
         funcionario.Nome,

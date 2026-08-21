@@ -1,5 +1,7 @@
-﻿using GRA.Application.DTOs;
+﻿using FluentValidation;
+using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
+using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
 
@@ -9,67 +11,108 @@ public class FuncionarioAppService : IFuncionarioAppService
 {
     private readonly IFuncionarioRepository _funcionarioRepository;
     private readonly IOficinaRepository _oficinaRepository;
+    private readonly IValidator<CadastrarFuncionarioDto> _cadastrarValidator;
+    private readonly IValidator<AtualizarFuncionarioDto> _atualizarValidator;
 
     public FuncionarioAppService(
         IFuncionarioRepository funcionarioRepository,
-        IOficinaRepository oficinaRepository)
+        IOficinaRepository oficinaRepository,
+        IValidator<CadastrarFuncionarioDto> cadastrarValidator,
+        IValidator<AtualizarFuncionarioDto> atualizarValidator)
     {
         _funcionarioRepository = funcionarioRepository;
         _oficinaRepository = oficinaRepository;
+        _cadastrarValidator = cadastrarValidator;
+        _atualizarValidator = atualizarValidator;
     }
 
-    public async Task<FuncionarioDTO?> CadastrarAsync(CadastrarFuncionarioDTO dto)
+    public async Task<ApiResponse<FuncionarioDto>> CadastrarAsync(CadastrarFuncionarioDto dto)
     {
-        var oficina = await _oficinaRepository.GetByIdAsync(dto.OficinaId);
-        if (oficina is null)
-            return null;
+        try
+        {
+            var validacao = _cadastrarValidator.Validate(dto);
+            if (!validacao.IsValid)
+                return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
-        Funcionario funcionario = dto;
+            var oficina = await _oficinaRepository.GetByIdAsync(dto.OficinaId);
+            if (oficina is null)
+                return ApiResponse<FuncionarioDto>.NaoEncontrado("Oficina informada não existe.");
 
-        await _funcionarioRepository.AddAsync(funcionario);
-        await _funcionarioRepository.SaveChangesAsync();
+            Funcionario funcionario = dto;
 
-        return funcionario;
+            await _funcionarioRepository.AddAsync(funcionario);
+            await _funcionarioRepository.SaveChangesAsync();
+
+            return ApiResponse<FuncionarioDto>.ComSucesso(funcionario);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<FuncionarioDto>.ComErro($"Erro ao cadastrar funcionário: {ex.Message}");
+        }
     }
 
-    public async Task<FuncionarioDTO?> AtualizarAsync(long id, AtualizarFuncionarioDTO dto)
+    public async Task<ApiResponse<FuncionarioDto>> AtualizarAsync(long id, AtualizarFuncionarioDto dto)
     {
-        var funcionario = await _funcionarioRepository.GetByIdAsync(id);
-        if (funcionario is null)
-            return null;
+        try
+        {
+            var validacao = _atualizarValidator.Validate(dto);
+            if (!validacao.IsValid)
+                return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
-        funcionario.Nome = dto.Nome;
-        funcionario.CPF = dto.CPF;
-        funcionario.Telefone = dto.Telefone;
-        funcionario.Email = dto.Email;
-        funcionario.Cargo = dto.Cargo;
-        funcionario.DataAdmissao = dto.DataAdmissao;
+            var funcionario = await _funcionarioRepository.GetByIdAsync(id);
+            if (funcionario is null)
+                return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
 
-        _funcionarioRepository.Update(funcionario);
-        await _funcionarioRepository.SaveChangesAsync();
+            funcionario.Nome = dto.Nome;
+            funcionario.CPF = dto.CPF;
+            funcionario.Telefone = dto.Telefone;
+            funcionario.Email = dto.Email;
+            funcionario.Cargo = dto.Cargo;
+            funcionario.DataAdmissao = dto.DataAdmissao;
 
-        return funcionario;
+            _funcionarioRepository.Update(funcionario);
+            await _funcionarioRepository.SaveChangesAsync();
+
+            return ApiResponse<FuncionarioDto>.ComSucesso(funcionario);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<FuncionarioDto>.ComErro($"Erro ao atualizar funcionário: {ex.Message}");
+        }
     }
 
-    public async Task<bool> DeletarAsync(long id)
+    public async Task<ApiResponse<string>> DeletarAsync(long id)
     {
-        var funcionario = await _funcionarioRepository.GetByIdAsync(id);
-        if (funcionario is null)
-            return false;
+        try
+        {
+            var funcionario = await _funcionarioRepository.GetByIdAsync(id);
+            if (funcionario is null)
+                return ApiResponse<string>.NaoEncontrado("Funcionário não encontrado.");
 
-        _funcionarioRepository.Remove(funcionario);
-        await _funcionarioRepository.SaveChangesAsync();
+            _funcionarioRepository.Remove(funcionario);
+            await _funcionarioRepository.SaveChangesAsync();
 
-        return true;
+            return ApiResponse<string>.ComSucesso("Funcionário deletado com sucesso");
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<string>.ComErro($"Erro ao deletar funcionário: {ex.Message}");
+        }
     }
 
-    public async Task<FuncionarioDTO?> BuscarPorIdAsync(long id)
+    public async Task<ApiResponse<FuncionarioDto>> BuscarPorIdAsync(long id)
     {
-        var funcionario = await _funcionarioRepository.GetByIdAsync(id);
+        try
+        {
+            var funcionario = await _funcionarioRepository.GetByIdAsync(id);
+            if (funcionario is null)
+                return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
 
-        if (funcionario is null)
-            return null;
-
-        return funcionario;
+            return ApiResponse<FuncionarioDto>.ComSucesso(funcionario);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<FuncionarioDto>.ComErro($"Erro ao buscar funcionário por id: {ex.Message}");
+        }
     }
 }

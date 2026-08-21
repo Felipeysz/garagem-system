@@ -1,18 +1,19 @@
 ﻿using GRA.Application.DTOs;
+using GRA.Application.Wrappers;
 
 namespace GRA.Application.Interfaces;
 
 public interface IOficinaAppService
 {
-    Task<OficinaDto> CadastrarAsync(CadastrarOficinaDto dto);
+    Task<ApiResponse<OficinaDto>> CadastrarAsync(CadastrarOficinaDto dto);
 
-    Task<OficinaDto?> AtualizarAsync(long id, AtualizarOficinaDto dto);
+    Task<ApiResponse<OficinaDto>> AtualizarAsync(long id, AtualizarOficinaDto dto);
 
-    Task<bool> AtivarAsync(long id);
+    Task<ApiResponse<string>> AtivarAsync(long id);
 
-    Task<bool> InativarAsync(long id);
+    Task<ApiResponse<string>> InativarAsync(long id);
 
-    Task<OficinaDto?> BuscarPorSlugAsync(string slug);
+    Task<ApiResponse<OficinaDto>> BuscarPorSlugAsync(string slug);
 
-    Task<OficinaDto?> BuscarPorNomeAsync(string nome);
+    Task<ApiResponse<OficinaDto>> BuscarPorNomeAsync(string nome);
 }

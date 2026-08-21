@@ -1,14 +1,15 @@
 ﻿using GRA.Application.DTOs;
+using GRA.Application.Wrappers;
 
 namespace GRA.Application.Interfaces;
 
 public interface IFuncionarioAppService
 {
-    Task<FuncionarioDTO?> CadastrarAsync(CadastrarFuncionarioDTO dto);
+    Task<ApiResponse<FuncionarioDto>> CadastrarAsync(CadastrarFuncionarioDto dto);
 
-    Task<FuncionarioDTO?> AtualizarAsync(long id, AtualizarFuncionarioDTO dto);
+    Task<ApiResponse<FuncionarioDto>> AtualizarAsync(long id, AtualizarFuncionarioDto dto);
 
-    Task<bool> DeletarAsync(long id);
+    Task<ApiResponse<string>> DeletarAsync(long id);
 
-    Task<FuncionarioDTO?> BuscarPorIdAsync(long id);
+    Task<ApiResponse<FuncionarioDto>> BuscarPorIdAsync(long id);
 }
