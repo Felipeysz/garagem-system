@@ -1,5 +1,6 @@
 ﻿using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
+using GRA.Application.Wrappers;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GRA.Api.Controllers;
@@ -16,102 +17,100 @@ public class OficinasController : ControllerBase
     }
 
     [HttpPost]
-    [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Cadastrar([FromBody] CadastrarOficinaDTO dto)
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Cadastrar([FromBody] CadastrarOficinaDto dto)
     {
-        try
+        var response = await _oficinaAppService.CadastrarAsync(dto);
+
+        return response.Status switch
         {
-            var oficina = await _oficinaAppService.CadastrarAsync(dto);
-            return CreatedAtAction(nameof(BuscarPorSlug), new { slug = oficina.Slug }, oficina);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao cadastrar oficina.", detalhe = ex.Message });
-        }
+            StatusResultado.Sucesso => CreatedAtAction(nameof(BuscarPorSlug), new { slug = response.Data!.Slug }, response),
+            StatusResultado.ValidacaoFalhou => UnprocessableEntity(response),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+        };
     }
 
     [HttpPut("{id:long}")]
-    [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Atualizar(long id, [FromBody] AtualizarOficinaDTO dto)
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Atualizar(long id, [FromBody] AtualizarOficinaDto dto)
     {
-        try
+        var response = await _oficinaAppService.AtualizarAsync(id, dto);
+
+        return response.Status switch
         {
-            var oficina = await _oficinaAppService.AtualizarAsync(id, dto);
-            return oficina is null ? NotFound() : Ok(oficina);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao atualizar oficina.", detalhe = ex.Message });
-        }
+            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.NaoEncontrado => NotFound(response),
+            StatusResultado.ValidacaoFalhou => UnprocessableEntity(response),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+        };
     }
 
     [HttpPatch("{id:long}/ativar")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Ativar(long id)
     {
-        try
+        var response = await _oficinaAppService.AtivarAsync(id);
+
+        return response.Status switch
         {
-            var sucesso = await _oficinaAppService.AtivarAsync(id);
-            return sucesso ? NoContent() : NotFound();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao ativar oficina.", detalhe = ex.Message });
-        }
+            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.NaoEncontrado => NotFound(response),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+        };
     }
 
     [HttpPatch("{id:long}/inativar")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> Inativar(long id)
     {
-        try
+        var response = await _oficinaAppService.InativarAsync(id);
+
+        return response.Status switch
         {
-            var sucesso = await _oficinaAppService.InativarAsync(id);
-            return sucesso ? NoContent() : NotFound();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao inativar oficina.", detalhe = ex.Message });
-        }
+            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.NaoEncontrado => NotFound(response),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+        };
     }
 
     [HttpGet("slug/{slug}")]
-    [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> BuscarPorSlug(string slug)
     {
-        try
+        var response = await _oficinaAppService.BuscarPorSlugAsync(slug);
+
+        return response.Status switch
         {
-            var oficina = await _oficinaAppService.BuscarPorSlugAsync(slug);
-            return oficina is null ? NotFound() : Ok(oficina);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao buscar oficina por slug.", detalhe = ex.Message });
-        }
+            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.NaoEncontrado => NotFound(response),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+        };
     }
 
     [HttpGet("nome/{nome}")]
-    [ProducesResponseType(typeof(OficinaDTO), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> BuscarPorNome(string nome)
     {
-        try
+        var response = await _oficinaAppService.BuscarPorNomeAsync(nome);
+
+        return response.Status switch
         {
-            var oficina = await _oficinaAppService.BuscarPorNomeAsync(nome);
-            return oficina is null ? NotFound() : Ok(oficina);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new { mensagem = "Erro ao buscar oficina por nome.", detalhe = ex.Message });
-        }
+            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.NaoEncontrado => NotFound(response),
+            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
+        };
     }
 }

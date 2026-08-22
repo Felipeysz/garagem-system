@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using System.Text;
+using FluentValidation;
 using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
+using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
 
@@ -10,84 +12,145 @@ namespace GRA.Application.Services;
 public class OficinaAppService : IOficinaAppService
 {
     private readonly IOficinaRepository _oficinaRepository;
+    private readonly IValidator<CadastrarOficinaDto> _cadastrarValidator;
+    private readonly IValidator<AtualizarOficinaDto> _atualizarValidator;
 
-    public OficinaAppService(IOficinaRepository oficinaRepository)
+    public OficinaAppService(
+        IOficinaRepository oficinaRepository,
+        IValidator<CadastrarOficinaDto> cadastrarValidator,
+        IValidator<AtualizarOficinaDto> atualizarValidator)
     {
         _oficinaRepository = oficinaRepository;
+        _cadastrarValidator = cadastrarValidator;
+        _atualizarValidator = atualizarValidator;
     }
 
-    public async Task<OficinaDTO> CadastrarAsync(CadastrarOficinaDTO dto)
+    public async Task<ApiResponse<OficinaDto>> CadastrarAsync(CadastrarOficinaDto dto)
     {
-        Oficina oficina = dto;
-        oficina.Slug = GerarSlug(oficina.Nome);
+        try
+        {
+            var validacao = _cadastrarValidator.Validate(dto);
+            if (!validacao.IsValid)
+                return ApiResponse<OficinaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
-        await _oficinaRepository.AddAsync(oficina);
-        await _oficinaRepository.SaveChangesAsync();
+            Oficina oficina = dto;
+            oficina.Slug = GerarSlug(oficina.Nome);
 
-        return oficina;
+            await _oficinaRepository.AddAsync(oficina);
+            await _oficinaRepository.SaveChangesAsync();
+
+            return ApiResponse<OficinaDto>.ComSucesso(oficina);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<OficinaDto>.ComErro($"Erro ao cadastrar oficina: {ex.Message}");
+        }
     }
 
-    public async Task<OficinaDTO?> AtualizarAsync(long id, AtualizarOficinaDTO dto)
+    public async Task<ApiResponse<OficinaDto>> AtualizarAsync(long id, AtualizarOficinaDto dto)
     {
-        var oficina = await _oficinaRepository.GetByIdAsync(id);
-        if (oficina is null)
-            return null;
+        try
+        {
+            var validacao = _atualizarValidator.Validate(dto);
+            if (!validacao.IsValid)
+                return ApiResponse<OficinaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
-        oficina.Nome = dto.Nome;
-        oficina.Slug = GerarSlug(dto.Nome);
-        oficina.CNPJ = dto.CNPJ;
-        oficina.Telefone = dto.Telefone;
-        oficina.Email = dto.Email;
+            var oficina = await _oficinaRepository.GetByIdAsync(id);
+            if (oficina is null)
+                return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
 
-        if (dto.Endereco is not null)
-            oficina.Endereco = dto.Endereco.Value;
+            oficina.Nome = dto.Nome;
+            oficina.Slug = GerarSlug(dto.Nome);
+            oficina.CNPJ = dto.CNPJ;
+            oficina.Telefone = dto.Telefone;
+            oficina.Email = dto.Email;
 
-        _oficinaRepository.Update(oficina);
-        await _oficinaRepository.SaveChangesAsync();
+            if (dto.Endereco is not null)
+                oficina.Endereco = dto.Endereco.Value;
 
-        return oficina;
+            _oficinaRepository.Update(oficina);
+            await _oficinaRepository.SaveChangesAsync();
+
+            return ApiResponse<OficinaDto>.ComSucesso(oficina);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<OficinaDto>.ComErro($"Erro ao atualizar oficina: {ex.Message}");
+        }
     }
 
-    public async Task<bool> AtivarAsync(long id)
+    public async Task<ApiResponse<string>> AtivarAsync(long id)
     {
-        var oficina = await _oficinaRepository.GetByIdAsync(id);
-        if (oficina is null)
-            return false;
+        try
+        {
+            var oficina = await _oficinaRepository.GetByIdAsync(id);
+            if (oficina is null)
+                return ApiResponse<string>.NaoEncontrado("Oficina não encontrada.");
 
-        oficina.Ativo = true;
+            oficina.Ativo = true;
 
-        _oficinaRepository.Update(oficina);
-        await _oficinaRepository.SaveChangesAsync();
+            _oficinaRepository.Update(oficina);
+            await _oficinaRepository.SaveChangesAsync();
 
-        return true;
+            return ApiResponse<string>.ComSucesso("Oficina ativada com sucesso");
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<string>.ComErro($"Erro ao ativar oficina: {ex.Message}");
+        }
     }
 
-    public async Task<bool> InativarAsync(long id)
+    public async Task<ApiResponse<string>> InativarAsync(long id)
     {
-        var oficina = await _oficinaRepository.GetByIdAsync(id);
-        if (oficina is null)
-            return false;
+        try
+        {
+            var oficina = await _oficinaRepository.GetByIdAsync(id);
+            if (oficina is null)
+                return ApiResponse<string>.NaoEncontrado("Oficina não encontrada.");
 
-        oficina.Ativo = false;
+            oficina.Ativo = false;
 
-        _oficinaRepository.Update(oficina);
-        await _oficinaRepository.SaveChangesAsync();
+            _oficinaRepository.Update(oficina);
+            await _oficinaRepository.SaveChangesAsync();
 
-        return true;
+            return ApiResponse<string>.ComSucesso("Oficina inativada com sucesso");
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<string>.ComErro($"Erro ao inativar oficina: {ex.Message}");
+        }
     }
 
-    public async Task<OficinaDTO?> BuscarPorSlugAsync(string slug)
+    public async Task<ApiResponse<OficinaDto>> BuscarPorSlugAsync(string slug)
     {
-        var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Slug == slug);
+        try
+        {
+            var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Slug == slug);
+            if (oficina is null)
+                return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
 
-        return oficina is null ? null : oficina;
+            return ApiResponse<OficinaDto>.ComSucesso(oficina);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<OficinaDto>.ComErro($"Erro ao buscar oficina por slug: {ex.Message}");
+        }
     }
 
-    public async Task<OficinaDTO?> BuscarPorNomeAsync(string nome)
+    public async Task<ApiResponse<OficinaDto>> BuscarPorNomeAsync(string nome)
     {
-        var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
+        try
+        {
+            var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
+            if (oficina is null)
+                return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
 
-        return oficina is null ? null : oficina;
+            return ApiResponse<OficinaDto>.ComSucesso(oficina);
+        }
+        catch (Exception ex)
+        {
+            return ApiResponse<OficinaDto>.ComErro($"Erro ao buscar oficina por nome: {ex.Message}");
+        }
     }
 
     private static string GerarSlug(string nome)

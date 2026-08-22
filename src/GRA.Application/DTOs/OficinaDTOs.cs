@@ -2,7 +2,7 @@
 
 namespace GRA.Application.DTOs;
 
-public readonly record struct EnderecoDTO(
+public readonly record struct EnderecoDto(
     string Logradouro,
     string Numero,
     string? Complemento,
@@ -11,7 +11,7 @@ public readonly record struct EnderecoDTO(
     string Estado,
     string CEP)
 {
-    public static implicit operator Endereco(EnderecoDTO dto) => new()
+    public static implicit operator Endereco(EnderecoDto dto) => new()
     {
         Logradouro = dto.Logradouro,
         Numero = dto.Numero,
@@ -22,7 +22,7 @@ public readonly record struct EnderecoDTO(
         CEP = dto.CEP
     };
 
-    public static implicit operator EnderecoDTO(Endereco endereco) => new(
+    public static implicit operator EnderecoDto(Endereco endereco) => new(
         endereco.Logradouro,
         endereco.Numero,
         endereco.Complemento,
@@ -32,14 +32,14 @@ public readonly record struct EnderecoDTO(
         endereco.CEP);
 }
 
-public record CadastrarOficinaDTO(
+public record CadastrarOficinaDto(
     string Nome,
     string CNPJ,
     string? Telefone,
     string? Email,
-    EnderecoDTO? Endereco)
+    EnderecoDto? Endereco)
 {
-    public static implicit operator Oficina(CadastrarOficinaDTO dto) => new()
+    public static implicit operator Oficina(CadastrarOficinaDto dto) => new()
     {
         Nome = dto.Nome,
         CNPJ = dto.CNPJ,
@@ -49,32 +49,32 @@ public record CadastrarOficinaDTO(
     };
 }
 
-public record AtualizarOficinaDTO(
+public record AtualizarOficinaDto(
     string Nome,
     string CNPJ,
     string? Telefone,
     string? Email,
-    EnderecoDTO? Endereco);
+    EnderecoDto? Endereco);
 
-public record OficinaDTO(
+public record OficinaDto(
     long Id,
     string Nome,
     string Slug,
     string CNPJ,
     string? Telefone,
     string? Email,
-    EnderecoDTO? Endereco,
+    EnderecoDto? Endereco,
     DateTime DataCadastro,
     bool Ativo)
 {
-    public static implicit operator OficinaDTO(Oficina oficina) => new(
+    public static implicit operator OficinaDto(Oficina oficina) => new(
         oficina.Id,
         oficina.Nome,
         oficina.Slug,
         oficina.CNPJ,
         oficina.Telefone,
         oficina.Email,
-        oficina.Endereco is null ? null : (EnderecoDTO)oficina.Endereco,
+        oficina.Endereco is null ? null : (EnderecoDto)oficina.Endereco,
         oficina.DataCadastro,
         oficina.Ativo);
 }
