@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using GRA.Application.DTOs;
 using GRA.Domain.Repositories;
 
@@ -25,8 +26,10 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
         RuleFor(f => f.CPF)
             .Cascade(CascadeMode.Stop)
             .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
-            .Must(cpf => System.Text.RegularExpressions.Regex.IsMatch(cpf.Trim(), @"^\d{11}$"))
+            .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$"))
                 .WithMessage("CPF deve conter 11 dígitos numéricos.")
+            .Must(cpf => CpfValidador.EhValido(cpf.Trim()))
+                .WithMessage("CPF inválido (dígito verificador não confere).")
             .MustAsync(async (dto, cpf, ct) =>
             {
                 var cpfTrim = cpf.Trim();
@@ -36,14 +39,13 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
 
         RuleFor(f => f.Telefone)
             .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
-                System.Text.RegularExpressions.Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
+                Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
                 .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.")
             .When(f => !string.IsNullOrWhiteSpace(f.Telefone));
 
         RuleFor(f => f.Email)
             .Cascade(CascadeMode.Stop)
-            .Must(email => string.IsNullOrWhiteSpace(email) ||
-                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+            .Must(email => string.IsNullOrWhiteSpace(email) || EmailValidador.EhValido(email.Trim()))
                 .WithMessage("Email inválido.")
             .MustAsync(async (dto, email, ct) =>
             {
@@ -85,8 +87,10 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
         RuleFor(f => f.CPF)
             .Cascade(CascadeMode.Stop)
             .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
-            .Must(cpf => System.Text.RegularExpressions.Regex.IsMatch(cpf.Trim(), @"^\d{11}$"))
+            .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$"))
                 .WithMessage("CPF deve conter 11 dígitos numéricos.")
+            .Must(cpf => CpfValidador.EhValido(cpf.Trim()))
+                .WithMessage("CPF inválido (dígito verificador não confere).")
             .MustAsync(async (dto, cpf, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
@@ -98,14 +102,13 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
 
         RuleFor(f => f.Telefone)
             .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
-                System.Text.RegularExpressions.Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
+                Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
                 .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.")
             .When(f => !string.IsNullOrWhiteSpace(f.Telefone));
 
         RuleFor(f => f.Email)
             .Cascade(CascadeMode.Stop)
-            .Must(email => string.IsNullOrWhiteSpace(email) ||
-                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+            .Must(email => string.IsNullOrWhiteSpace(email) || EmailValidador.EhValido(email.Trim()))
                 .WithMessage("Email inválido.")
             .MustAsync(async (dto, email, context, ct) =>
             {
@@ -126,5 +129,54 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
             .NotEmpty().WithMessage("Data de admissão é obrigatória.")
             .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                 .WithMessage("Data de admissão não pode ser no futuro.");
+    }
+}
+
+file static class CpfValidador
+{
+    public static bool EhValido(string cpf)
+    {
+        // Rejeita sequências com todos os dígitos iguais (000.000.000-00, 111.111.111-11 etc.)
+        // — passam despercebidas pelo cálculo do dígito verificador mas são inválidas na prática.
+        if (cpf.Distinct().Count() == 1)
+            return false;
+
+        var valores = cpf.Select(c => (int)c - 48).ToArray();
+
+        int[] pesos1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+        var soma1 = 0;
+        for (var i = 0; i < 9; i++)
+            soma1 += valores[i] * pesos1[i];
+
+        var resto1 = soma1 % 11;
+        var dv1 = resto1 < 2 ? 0 : 11 - resto1;
+
+        if (valores[9] != dv1)
+            return false;
+
+        int[] pesos2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+        var soma2 = 0;
+        for (var i = 0; i < 10; i++)
+            soma2 += valores[i] * pesos2[i];
+
+        var resto2 = soma2 % 11;
+        var dv2 = resto2 < 2 ? 0 : 11 - resto2;
+
+        return valores[10] == dv2;
+    }
+}
+
+file static class EmailValidador
+{
+    public static bool EhValido(string email)
+    {
+        try
+        {
+            return new System.Net.Mail.MailAddress(email).Address == email;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }

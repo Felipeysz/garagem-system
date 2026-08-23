@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using GRA.Application.DTOs;
 using GRA.Domain.Repositories;
 
@@ -21,17 +22,19 @@ public class CadastrarOficinaDtoValidator : AbstractValidator<CadastrarOficinaDt
         RuleFor(o => o.CNPJ)
             .Cascade(CascadeMode.Stop)
             .Must(cnpj => !string.IsNullOrWhiteSpace(cnpj)).WithMessage("CNPJ é obrigatório.")
-            .Must(cnpj => System.Text.RegularExpressions.Regex.IsMatch(cnpj.Trim(), @"^\d{14}$"))
-                .WithMessage("CNPJ deve conter 14 dígitos numéricos.")
+            .Must(cnpj => Regex.IsMatch(cnpj.Trim().ToUpper(), @"^[A-Z0-9]{12}\d{2}$"))
+                .WithMessage("CNPJ deve ter 14 caracteres (letras/números nas 12 primeiras posições e dígitos nas 2 últimas).")
+            .Must(cnpj => CnpjValidador.EhValido(cnpj.Trim().ToUpper()))
+                .WithMessage("CNPJ inválido (dígito verificador não confere).")
             .MustAsync(async (cnpj, ct) =>
             {
-                var cnpjTrim = cnpj.Trim();
+                var cnpjTrim = cnpj.Trim().ToUpper();
                 return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         RuleFor(o => o.Email)
             .Cascade(CascadeMode.Stop)
-            .Must(email => string.IsNullOrWhiteSpace(email) || new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+            .Must(email => string.IsNullOrWhiteSpace(email) || EmailValidador.EhValido(email.Trim()))
                 .WithMessage("Email inválido.")
             .MustAsync(async (email, ct) =>
             {
@@ -64,18 +67,20 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
         RuleFor(o => o.CNPJ)
             .Cascade(CascadeMode.Stop)
             .Must(cnpj => !string.IsNullOrWhiteSpace(cnpj)).WithMessage("CNPJ é obrigatório.")
-            .Must(cnpj => System.Text.RegularExpressions.Regex.IsMatch(cnpj.Trim(), @"^\d{14}$"))
-                .WithMessage("CNPJ deve conter 14 dígitos numéricos.")
+            .Must(cnpj => Regex.IsMatch(cnpj.Trim().ToUpper(), @"^[A-Z0-9]{12}\d{2}$"))
+                .WithMessage("CNPJ deve ter 14 caracteres (letras/números nas 12 primeiras posições e dígitos nas 2 últimas).")
+            .Must(cnpj => CnpjValidador.EhValido(cnpj.Trim().ToUpper()))
+                .WithMessage("CNPJ inválido (dígito verificador não confere).")
             .MustAsync(async (dto, cnpj, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
-                var cnpjTrim = cnpj.Trim();
+                var cnpjTrim = cnpj.Trim().ToUpper();
                 return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim && o.Id != id);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         RuleFor(o => o.Email)
             .Cascade(CascadeMode.Stop)
-            .Must(email => string.IsNullOrWhiteSpace(email) || new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+            .Must(email => string.IsNullOrWhiteSpace(email) || EmailValidador.EhValido(email.Trim()))
                 .WithMessage("Email inválido.")
             .MustAsync(async (dto, email, context, ct) =>
             {
@@ -88,5 +93,50 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
         RuleFor(o => o.Endereco!.Value)
             .SetValidator(new EnderecoDtoValidator())
             .When(o => o.Endereco is not null);
+    }
+}
+
+file static class CnpjValidador
+{
+    public static bool EhValido(string cnpj)
+    {
+        int[] pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+        int[] pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+        var valores = cnpj.Select(c => (int)c - 48).ToArray();
+
+        var soma1 = 0;
+        for (var i = 0; i < 12; i++)
+            soma1 += valores[i] * pesos1[i];
+
+        var resto1 = soma1 % 11;
+        var dv1 = resto1 < 2 ? 0 : 11 - resto1;
+
+        if (valores[12] != dv1)
+            return false;
+
+        var soma2 = 0;
+        for (var i = 0; i < 13; i++)
+            soma2 += valores[i] * pesos2[i];
+
+        var resto2 = soma2 % 11;
+        var dv2 = resto2 < 2 ? 0 : 11 - resto2;
+
+        return valores[13] == dv2;
+    }
+}
+
+file static class EmailValidador
+{
+    public static bool EhValido(string email)
+    {
+        try
+        {
+            return new System.Net.Mail.MailAddress(email).Address == email;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }
