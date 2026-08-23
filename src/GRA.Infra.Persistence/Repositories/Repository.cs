@@ -29,6 +29,9 @@ public class Repository<T> : IRepository<T> where T : Entity
     public async Task<IEnumerable<T>> SearchAsync(Expression<Func<T, bool>> predicate)
         => await DbSet.Where(predicate).ToListAsync();
 
+    public async Task<bool> ExisteAsync(Expression<Func<T, bool>> predicate)
+        => await DbSet.AnyAsync(predicate);
+
     public async Task AddAsync(T entity)
         => await DbSet.AddAsync(entity);
 
