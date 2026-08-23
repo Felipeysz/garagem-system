@@ -12,6 +12,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .GreaterThan(0).WithMessage("OficinaId é obrigatório.");
 
         RuleFor(f => f.Nome)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Nome é obrigatório.")
             .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.")
             .MustAsync(async (dto, nome, ct) => !await funcionarioRepository.ExisteAsync(f =>
@@ -19,6 +20,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
                 .WithMessage("Já existe um funcionário com esse nome nessa oficina.");
 
         RuleFor(f => f.CPF)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("CPF é obrigatório.")
             .Matches(@"^\d{11}$").WithMessage("CPF deve conter 11 dígitos numéricos.")
             .MustAsync(async (dto, cpf, ct) => !await funcionarioRepository.ExisteAsync(f =>
@@ -30,6 +32,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .When(f => !string.IsNullOrWhiteSpace(f.Telefone));
 
         RuleFor(f => f.Email)
+            .Cascade(CascadeMode.Stop)
             .EmailAddress().WithMessage("Email inválido.")
             .MustAsync(async (dto, email, ct) => !await funcionarioRepository.ExisteAsync(f =>
                 f.OficinaId == dto.OficinaId && f.Email == email))
@@ -52,6 +55,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
     public AtualizarFuncionarioDtoValidator(IFuncionarioRepository funcionarioRepository)
     {
         RuleFor(f => f.Nome)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Nome é obrigatório.")
             .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.")
             .MustAsync(async (dto, nome, context, ct) =>
@@ -63,6 +67,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
             }).WithMessage("Já existe um funcionário com esse nome nessa oficina.");
 
         RuleFor(f => f.CPF)
+            .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("CPF é obrigatório.")
             .Matches(@"^\d{11}$").WithMessage("CPF deve conter 11 dígitos numéricos.")
             .MustAsync(async (dto, cpf, context, ct) =>
@@ -78,6 +83,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
             .When(f => !string.IsNullOrWhiteSpace(f.Telefone));
 
         RuleFor(f => f.Email)
+            .Cascade(CascadeMode.Stop)
             .EmailAddress().WithMessage("Email inválido.")
             .MustAsync(async (dto, email, context, ct) =>
             {
