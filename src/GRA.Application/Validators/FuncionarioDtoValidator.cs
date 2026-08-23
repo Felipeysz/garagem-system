@@ -16,7 +16,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .NotEmpty().WithMessage("Nome é obrigatório.")
             .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.")
             .MustAsync(async (dto, nome, ct) => !await funcionarioRepository.ExisteAsync(f =>
-                f.OficinaId == dto.OficinaId && f.Nome == nome))
+                f.OficinaId == dto.OficinaId && f.Nome.ToUpper() == nome.ToUpper()))
                 .WithMessage("Já existe um funcionário com esse nome nessa oficina.");
 
         RuleFor(f => f.CPF)
@@ -35,7 +35,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .Cascade(CascadeMode.Stop)
             .EmailAddress().WithMessage("Email inválido.")
             .MustAsync(async (dto, email, ct) => !await funcionarioRepository.ExisteAsync(f =>
-                f.OficinaId == dto.OficinaId && f.Email == email))
+                f.OficinaId == dto.OficinaId && f.Email != null && f.Email.ToUpper() == email.ToUpper()))
                 .WithMessage("Já existe um funcionário com esse email nessa oficina.")
             .When(f => !string.IsNullOrWhiteSpace(f.Email));
 
@@ -63,7 +63,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
                 var id = (long)context.RootContextData["Id"];
                 var oficinaId = (long)context.RootContextData["OficinaId"];
                 return !await funcionarioRepository.ExisteAsync(f =>
-                    f.Id != id && f.OficinaId == oficinaId && f.Nome == nome);
+                    f.Id != id && f.OficinaId == oficinaId && f.Nome.ToUpper() == nome.ToUpper());
             }).WithMessage("Já existe um funcionário com esse nome nessa oficina.");
 
         RuleFor(f => f.CPF)
@@ -90,7 +90,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
                 var id = (long)context.RootContextData["Id"];
                 var oficinaId = (long)context.RootContextData["OficinaId"];
                 return !await funcionarioRepository.ExisteAsync(f =>
-                    f.Id != id && f.OficinaId == oficinaId && f.Email == email);
+                    f.Id != id && f.OficinaId == oficinaId && f.Email != null && f.Email.ToUpper() == email.ToUpper());
             }).WithMessage("Já existe um funcionário com esse email nessa oficina.")
             .When(f => !string.IsNullOrWhiteSpace(f.Email));
 

@@ -12,7 +12,8 @@ public class CadastrarOficinaDtoValidator : AbstractValidator<CadastrarOficinaDt
             .Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Nome é obrigatório.")
             .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.")
-            .MustAsync(async (nome, ct) => !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome == nome))
+            .MustAsync(async (nome, ct) => !await oficinaRepository.ExisteAsync(o =>
+                o.Ativo && o.Nome.ToUpper() == nome.ToUpper()))
                 .WithMessage("Já existe uma oficina ativa cadastrada com esse nome.");
 
         RuleFor(o => o.CNPJ)
@@ -25,7 +26,8 @@ public class CadastrarOficinaDtoValidator : AbstractValidator<CadastrarOficinaDt
         RuleFor(o => o.Email)
             .Cascade(CascadeMode.Stop)
             .EmailAddress().WithMessage("Email inválido.")
-            .MustAsync(async (email, ct) => !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Email == email))
+            .MustAsync(async (email, ct) => !await oficinaRepository.ExisteAsync(o =>
+                o.Ativo && o.Email!.ToUpper() == email.ToUpper()))
                 .WithMessage("Já existe uma oficina ativa cadastrada com esse email.")
             .When(o => !string.IsNullOrWhiteSpace(o.Email));
 
@@ -46,7 +48,8 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
             .MustAsync(async (dto, nome, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
-                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome == nome && o.Id != id);
+                return !await oficinaRepository.ExisteAsync(o =>
+                    o.Ativo && o.Nome.ToUpper() == nome.ToUpper() && o.Id != id);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse nome.");
 
         RuleFor(o => o.CNPJ)
@@ -65,7 +68,8 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
             .MustAsync(async (dto, email, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
-                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Email == email && o.Id != id);
+                return !await oficinaRepository.ExisteAsync(o =>
+                    o.Ativo && o.Email != null && o.Email.ToUpper() == email.ToUpper() && o.Id != id);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse email.")
             .When(o => !string.IsNullOrWhiteSpace(o.Email));
 
