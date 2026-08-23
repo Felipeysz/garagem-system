@@ -58,11 +58,11 @@ public class FuncionarioAppService : IFuncionarioAppService
         if (!validacao.IsValid)
             return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
-        funcionario.Nome = dto.Nome;
-        funcionario.CPF = dto.CPF;
-        funcionario.Telefone = dto.Telefone;
-        funcionario.Email = dto.Email;
-        funcionario.Cargo = dto.Cargo;
+        funcionario.Nome = dto.Nome.Trim();
+        funcionario.CPF = dto.CPF.Trim();
+        funcionario.Telefone = dto.Telefone?.Trim();
+        funcionario.Email = dto.Email?.Trim();
+        funcionario.Cargo = dto.Cargo.Trim();
         funcionario.DataAdmissao = dto.DataAdmissao;
 
         _funcionarioRepository.Update(funcionario);

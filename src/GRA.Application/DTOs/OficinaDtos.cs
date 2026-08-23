@@ -41,10 +41,10 @@ public record CadastrarOficinaDto(
 {
     public static implicit operator Oficina(CadastrarOficinaDto dto) => new()
     {
-        Nome = dto.Nome,
-        CNPJ = dto.CNPJ,
-        Telefone = dto.Telefone,
-        Email = dto.Email,
+        Nome = dto.Nome.Trim(),
+        CNPJ = dto.CNPJ.Trim(),
+        Telefone = dto.Telefone?.Trim(),
+        Email = dto.Email?.Trim(),
         Endereco = dto.Endereco is null ? null : (Endereco)dto.Endereco.Value
     };
 }

@@ -14,11 +14,11 @@ public record CadastrarFuncionarioDto(
     public static implicit operator Funcionario(CadastrarFuncionarioDto dto) => new()
     {
         OficinaId = dto.OficinaId,
-        Nome = dto.Nome,
-        CPF = dto.CPF,
-        Telefone = dto.Telefone,
-        Email = dto.Email,
-        Cargo = dto.Cargo,
+        Nome = dto.Nome.Trim(),
+        CPF = dto.CPF.Trim(),
+        Telefone = dto.Telefone?.Trim(),
+        Email = dto.Email?.Trim(),
+        Cargo = dto.Cargo.Trim(),
         DataAdmissao = dto.DataAdmissao
     };
 }

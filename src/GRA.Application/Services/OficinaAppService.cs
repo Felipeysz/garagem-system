@@ -53,11 +53,11 @@ public class OficinaAppService : IOficinaAppService
         if (oficina is null)
             return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
 
-        oficina.Nome = dto.Nome;
-        oficina.Slug = GerarSlug(dto.Nome);
-        oficina.CNPJ = dto.CNPJ;
-        oficina.Telefone = dto.Telefone;
-        oficina.Email = dto.Email;
+        oficina.Nome = dto.Nome.Trim();
+        oficina.Slug = GerarSlug(dto.Nome.Trim());
+        oficina.CNPJ = dto.CNPJ.Trim();
+        oficina.Telefone = dto.Telefone?.Trim();
+        oficina.Email = dto.Email?.Trim();
 
         if (dto.Endereco is not null)
             oficina.Endereco = dto.Endereco.Value;

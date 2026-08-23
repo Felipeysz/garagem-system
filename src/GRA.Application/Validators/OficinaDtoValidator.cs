@@ -10,25 +10,34 @@ public class CadastrarOficinaDtoValidator : AbstractValidator<CadastrarOficinaDt
     {
         RuleFor(o => o.Nome)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Nome é obrigatório.")
-            .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.")
-            .MustAsync(async (nome, ct) => !await oficinaRepository.ExisteAsync(o =>
-                o.Ativo && o.Nome.ToUpper() == nome.ToUpper()))
-                .WithMessage("Já existe uma oficina ativa cadastrada com esse nome.");
+            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
+            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.")
+            .MustAsync(async (nome, ct) =>
+            {
+                var nomeTrim = nome.Trim();
+                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper());
+            }).WithMessage("Já existe uma oficina ativa cadastrada com esse nome.");
 
         RuleFor(o => o.CNPJ)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("CNPJ é obrigatório.")
-            .Matches(@"^\d{14}$").WithMessage("CNPJ deve conter 14 dígitos numéricos.")
-            .MustAsync(async (cnpj, ct) => !await oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpj))
-                .WithMessage("Já existe uma oficina ativa cadastrada com esse CNPJ.");
+            .Must(cnpj => !string.IsNullOrWhiteSpace(cnpj)).WithMessage("CNPJ é obrigatório.")
+            .Must(cnpj => System.Text.RegularExpressions.Regex.IsMatch(cnpj.Trim(), @"^\d{14}$"))
+                .WithMessage("CNPJ deve conter 14 dígitos numéricos.")
+            .MustAsync(async (cnpj, ct) =>
+            {
+                var cnpjTrim = cnpj.Trim();
+                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim);
+            }).WithMessage("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         RuleFor(o => o.Email)
             .Cascade(CascadeMode.Stop)
-            .EmailAddress().WithMessage("Email inválido.")
-            .MustAsync(async (email, ct) => !await oficinaRepository.ExisteAsync(o =>
-                o.Ativo && o.Email!.ToUpper() == email.ToUpper()))
-                .WithMessage("Já existe uma oficina ativa cadastrada com esse email.")
+            .Must(email => string.IsNullOrWhiteSpace(email) || new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                .WithMessage("Email inválido.")
+            .MustAsync(async (email, ct) =>
+            {
+                var emailTrim = email!.Trim();
+                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Email != null && o.Email.ToUpper() == emailTrim.ToUpper());
+            }).WithMessage("Já existe uma oficina ativa cadastrada com esse email.")
             .When(o => !string.IsNullOrWhiteSpace(o.Email));
 
         RuleFor(o => o.Endereco!.Value)
@@ -43,33 +52,36 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
     {
         RuleFor(o => o.Nome)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("Nome é obrigatório.")
-            .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.")
+            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
+            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.")
             .MustAsync(async (dto, nome, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
-                return !await oficinaRepository.ExisteAsync(o =>
-                    o.Ativo && o.Nome.ToUpper() == nome.ToUpper() && o.Id != id);
+                var nomeTrim = nome.Trim();
+                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper() && o.Id != id);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse nome.");
 
         RuleFor(o => o.CNPJ)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty().WithMessage("CNPJ é obrigatório.")
-            .Matches(@"^\d{14}$").WithMessage("CNPJ deve conter 14 dígitos numéricos.")
+            .Must(cnpj => !string.IsNullOrWhiteSpace(cnpj)).WithMessage("CNPJ é obrigatório.")
+            .Must(cnpj => System.Text.RegularExpressions.Regex.IsMatch(cnpj.Trim(), @"^\d{14}$"))
+                .WithMessage("CNPJ deve conter 14 dígitos numéricos.")
             .MustAsync(async (dto, cnpj, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
-                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpj && o.Id != id);
+                var cnpjTrim = cnpj.Trim();
+                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim && o.Id != id);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         RuleFor(o => o.Email)
             .Cascade(CascadeMode.Stop)
-            .EmailAddress().WithMessage("Email inválido.")
+            .Must(email => string.IsNullOrWhiteSpace(email) || new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                .WithMessage("Email inválido.")
             .MustAsync(async (dto, email, context, ct) =>
             {
                 var id = (long)context.RootContextData["Id"];
-                return !await oficinaRepository.ExisteAsync(o =>
-                    o.Ativo && o.Email != null && o.Email.ToUpper() == email.ToUpper() && o.Id != id);
+                var emailTrim = email!.Trim();
+                return !await oficinaRepository.ExisteAsync(o => o.Ativo && o.Email != null && o.Email.ToUpper() == emailTrim.ToUpper() && o.Id != id);
             }).WithMessage("Já existe uma oficina ativa cadastrada com esse email.")
             .When(o => !string.IsNullOrWhiteSpace(o.Email));
 
