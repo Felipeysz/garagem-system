@@ -36,6 +36,20 @@ public class FuncionarioAppService : IFuncionarioAppService
         if (oficina is null)
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Oficina informada não existe.");
 
+        var nomeTrim = dto.Nome.Trim();
+        var cpfTrim = dto.CPF.Trim();
+        var emailTrim = dto.Email?.Trim();
+
+        if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
+            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse nome nessa oficina."]);
+
+        if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.CPF == cpfTrim))
+            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse CPF nessa oficina."]);
+
+        if (!string.IsNullOrWhiteSpace(emailTrim) &&
+            await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Email != null && f.Email.ToUpper() == emailTrim.ToUpper()))
+            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse email nessa oficina."]);
+
         Funcionario funcionario = dto;
 
         await _funcionarioRepository.AddAsync(funcionario);
@@ -46,22 +60,33 @@ public class FuncionarioAppService : IFuncionarioAppService
 
     public async Task<ApiResponse<FuncionarioDto>> AtualizarAsync(long id, AtualizarFuncionarioDto dto)
     {
+        var validacao = await _atualizarValidator.ValidateAsync(dto);
+        if (!validacao.IsValid)
+            return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+
         var funcionario = await _funcionarioRepository.GetByIdAsync(id);
         if (funcionario is null)
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
 
-        var context = new ValidationContext<AtualizarFuncionarioDto>(dto);
-        context.RootContextData["Id"] = id;
-        context.RootContextData["OficinaId"] = funcionario.OficinaId;
+        var nomeTrim = dto.Nome.Trim();
+        var cpfTrim = dto.CPF.Trim();
+        var emailTrim = dto.Email?.Trim();
+        var oficinaId = funcionario.OficinaId;
 
-        var validacao = await _atualizarValidator.ValidateAsync(context);
-        if (!validacao.IsValid)
-            return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
+            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse nome nessa oficina."]);
 
-        funcionario.Nome = dto.Nome.Trim();
-        funcionario.CPF = dto.CPF.Trim();
+        if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.CPF == cpfTrim))
+            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse CPF nessa oficina."]);
+
+        if (!string.IsNullOrWhiteSpace(emailTrim) &&
+            await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Email != null && f.Email.ToUpper() == emailTrim.ToUpper()))
+            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse email nessa oficina."]);
+
+        funcionario.Nome = nomeTrim;
+        funcionario.CPF = cpfTrim;
         funcionario.Telefone = dto.Telefone?.Trim();
-        funcionario.Email = dto.Email?.Trim();
+        funcionario.Email = emailTrim;
         funcionario.Cargo = dto.Cargo.Trim();
         funcionario.DataAdmissao = dto.DataAdmissao;
 
