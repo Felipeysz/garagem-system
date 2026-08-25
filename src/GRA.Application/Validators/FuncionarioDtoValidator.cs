@@ -1,5 +1,7 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using GRA.Application.DTOs;
+using GRA.Shared.Documentos;
 
 namespace GRA.Application.Validators;
 
@@ -11,24 +13,27 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .GreaterThan(0).WithMessage("OficinaId é obrigatório.");
 
         RuleFor(f => f.Nome)
-            .NotEmpty().WithMessage("Nome é obrigatório.")
-            .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.");
+            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
+            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
 
         RuleFor(f => f.CPF)
-            .NotEmpty().WithMessage("CPF é obrigatório.")
-            .Matches(@"^\d{11}$").WithMessage("CPF deve conter 11 dígitos numéricos.");
+            .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
+            .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$")).WithMessage("CPF deve conter 11 dígitos numéricos.")
+            .Must(cpf => DocumentoValidacao.CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
 
         RuleFor(f => f.Telefone)
-            .Matches(@"^\d{10,11}$").WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.")
-            .When(f => !string.IsNullOrWhiteSpace(f.Telefone));
+            .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
+                Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
+                .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.");
 
         RuleFor(f => f.Email)
-            .EmailAddress().WithMessage("Email inválido.")
-            .When(f => !string.IsNullOrWhiteSpace(f.Email));
+            .Must(email => string.IsNullOrWhiteSpace(email) ||
+                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                .WithMessage("Email inválido.");
 
         RuleFor(f => f.Cargo)
-            .NotEmpty().WithMessage("Cargo é obrigatório.")
-            .MaximumLength(100).WithMessage("Cargo deve ter no máximo 100 caracteres.");
+            .Must(cargo => !string.IsNullOrWhiteSpace(cargo)).WithMessage("Cargo é obrigatório.")
+            .Must(cargo => cargo.Trim().Length <= 100).WithMessage("Cargo deve ter no máximo 100 caracteres.");
 
         RuleFor(f => f.DataAdmissao)
             .NotEmpty().WithMessage("Data de admissão é obrigatória.")
@@ -42,24 +47,27 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
     public AtualizarFuncionarioDtoValidator()
     {
         RuleFor(f => f.Nome)
-            .NotEmpty().WithMessage("Nome é obrigatório.")
-            .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.");
+            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
+            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
 
         RuleFor(f => f.CPF)
-            .NotEmpty().WithMessage("CPF é obrigatório.")
-            .Matches(@"^\d{11}$").WithMessage("CPF deve conter 11 dígitos numéricos.");
+            .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
+            .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$")).WithMessage("CPF deve conter 11 dígitos numéricos.")
+            .Must(cpf => DocumentoValidacao.CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
 
         RuleFor(f => f.Telefone)
-            .Matches(@"^\d{10,11}$").WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.")
-            .When(f => !string.IsNullOrWhiteSpace(f.Telefone));
+            .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
+                Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
+                .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.");
 
         RuleFor(f => f.Email)
-            .EmailAddress().WithMessage("Email inválido.")
-            .When(f => !string.IsNullOrWhiteSpace(f.Email));
+            .Must(email => string.IsNullOrWhiteSpace(email) ||
+                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                .WithMessage("Email inválido.");
 
         RuleFor(f => f.Cargo)
-            .NotEmpty().WithMessage("Cargo é obrigatório.")
-            .MaximumLength(100).WithMessage("Cargo deve ter no máximo 100 caracteres.");
+            .Must(cargo => !string.IsNullOrWhiteSpace(cargo)).WithMessage("Cargo é obrigatório.")
+            .Must(cargo => cargo.Trim().Length <= 100).WithMessage("Cargo deve ter no máximo 100 caracteres.");
 
         RuleFor(f => f.DataAdmissao)
             .NotEmpty().WithMessage("Data de admissão é obrigatória.")

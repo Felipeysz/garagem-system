@@ -1,5 +1,7 @@
-﻿using FluentValidation;
+﻿using System.Text.RegularExpressions;
+using FluentValidation;
 using GRA.Application.DTOs;
+using GRA.Shared.Documentos;
 
 namespace GRA.Application.Validators;
 
@@ -8,16 +10,20 @@ public class CadastrarOficinaDtoValidator : AbstractValidator<CadastrarOficinaDt
     public CadastrarOficinaDtoValidator()
     {
         RuleFor(o => o.Nome)
-            .NotEmpty().WithMessage("Nome é obrigatório.")
-            .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.");
+            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
+            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
 
         RuleFor(o => o.CNPJ)
-            .NotEmpty().WithMessage("CNPJ é obrigatório.")
-            .Matches(@"^\d{14}$").WithMessage("CNPJ deve conter 14 dígitos numéricos.");
+            .Must(cnpj => !string.IsNullOrWhiteSpace(cnpj)).WithMessage("CNPJ é obrigatório.")
+            .Must(cnpj => Regex.IsMatch(cnpj.Trim().ToUpper(), @"^[A-Z0-9]{12}\d{2}$"))
+                .WithMessage("CNPJ deve ter 14 caracteres (letras/números nas 12 primeiras posições e dígitos nas 2 últimas).")
+            .Must(cnpj => DocumentoValidacao.CnpjEhValido(cnpj.Trim().ToUpper()))
+                .WithMessage("CNPJ inválido (dígito verificador não confere).");
 
         RuleFor(o => o.Email)
-            .EmailAddress().WithMessage("Email inválido.")
-            .When(o => !string.IsNullOrWhiteSpace(o.Email));
+            .Must(email => string.IsNullOrWhiteSpace(email) ||
+                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                .WithMessage("Email inválido.");
 
         RuleFor(o => o.Endereco!.Value)
             .SetValidator(new EnderecoDtoValidator())
@@ -30,16 +36,20 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
     public AtualizarOficinaDtoValidator()
     {
         RuleFor(o => o.Nome)
-            .NotEmpty().WithMessage("Nome é obrigatório.")
-            .MaximumLength(150).WithMessage("Nome deve ter no máximo 150 caracteres.");
+            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
+            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
 
         RuleFor(o => o.CNPJ)
-            .NotEmpty().WithMessage("CNPJ é obrigatório.")
-            .Matches(@"^\d{14}$").WithMessage("CNPJ deve conter 14 dígitos numéricos.");
+            .Must(cnpj => !string.IsNullOrWhiteSpace(cnpj)).WithMessage("CNPJ é obrigatório.")
+            .Must(cnpj => Regex.IsMatch(cnpj.Trim().ToUpper(), @"^[A-Z0-9]{12}\d{2}$"))
+                .WithMessage("CNPJ deve ter 14 caracteres (letras/números nas 12 primeiras posições e dígitos nas 2 últimas).")
+            .Must(cnpj => DocumentoValidacao.CnpjEhValido(cnpj.Trim().ToUpper()))
+                .WithMessage("CNPJ inválido (dígito verificador não confere).");
 
         RuleFor(o => o.Email)
-            .EmailAddress().WithMessage("Email inválido.")
-            .When(o => !string.IsNullOrWhiteSpace(o.Email));
+            .Must(email => string.IsNullOrWhiteSpace(email) ||
+                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                .WithMessage("Email inválido.");
 
         RuleFor(o => o.Endereco!.Value)
             .SetValidator(new EnderecoDtoValidator())
