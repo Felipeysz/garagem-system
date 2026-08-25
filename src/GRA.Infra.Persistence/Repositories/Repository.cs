@@ -17,23 +17,23 @@ public class Repository<T> : IRepository<T> where T : Entity
         DbSet = context.Set<T>();
     }
 
-    public virtual async Task<T?> GetByIdAsync(long id)
-        => await DbSet.FindAsync(id);
+    public virtual Task<T?> GetByIdAsync(long id)
+        => DbSet.FindAsync(id).AsTask();
 
     public virtual async Task<IEnumerable<T>> GetAllAsync()
         => await DbSet.ToListAsync();
 
-    public virtual async Task<T?> SingleAsync(Expression<Func<T, bool>> predicate)
-        => await DbSet.SingleOrDefaultAsync(predicate);
+    public virtual Task<T?> SingleAsync(Expression<Func<T, bool>> predicate)
+        => DbSet.SingleOrDefaultAsync(predicate);
 
     public async Task<IEnumerable<T>> SearchAsync(Expression<Func<T, bool>> predicate)
         => await DbSet.Where(predicate).ToListAsync();
 
-    public async Task<bool> ExisteAsync(Expression<Func<T, bool>> predicate)
-        => await DbSet.AnyAsync(predicate);
+    public Task<bool> ExisteAsync(Expression<Func<T, bool>> predicate)
+        => DbSet.AnyAsync(predicate);
 
-    public async Task AddAsync(T entity)
-        => await DbSet.AddAsync(entity);
+    public Task AddAsync(T entity)
+        => DbSet.AddAsync(entity).AsTask();
 
     public void Update(T entity)
         => DbSet.Update(entity);
