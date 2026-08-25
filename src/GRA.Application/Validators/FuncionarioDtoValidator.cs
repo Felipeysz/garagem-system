@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using GRA.Application.DTOs;
+using GRA.Shared.Documentos;
 
 namespace GRA.Application.Validators;
 
@@ -18,7 +19,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
         RuleFor(f => f.CPF)
             .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
             .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$")).WithMessage("CPF deve conter 11 dígitos numéricos.")
-            .Must(cpf => CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
+            .Must(cpf => DocumentoValidacao.CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
 
         RuleFor(f => f.Telefone)
             .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
@@ -38,36 +39,6 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .NotEmpty().WithMessage("Data de admissão é obrigatória.")
             .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                 .WithMessage("Data de admissão não pode ser no futuro.");
-    }
-
-    private static bool CpfEhValido(string cpf)
-    {
-        if (cpf.Distinct().Count() == 1)
-            return false;
-
-        int[] pesos1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
-        int[] pesos2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
-
-        var digitos = cpf.Select(c => c - '0').ToArray();
-
-        var soma1 = 0;
-        for (var i = 0; i < 9; i++)
-            soma1 += digitos[i] * pesos1[i];
-
-        var resto1 = soma1 % 11;
-        var dv1 = resto1 < 2 ? 0 : 11 - resto1;
-
-        if (digitos[9] != dv1)
-            return false;
-
-        var soma2 = 0;
-        for (var i = 0; i < 10; i++)
-            soma2 += digitos[i] * pesos2[i];
-
-        var resto2 = soma2 % 11;
-        var dv2 = resto2 < 2 ? 0 : 11 - resto2;
-
-        return digitos[10] == dv2;
     }
 }
 
@@ -82,7 +53,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
         RuleFor(f => f.CPF)
             .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
             .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$")).WithMessage("CPF deve conter 11 dígitos numéricos.")
-            .Must(cpf => CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
+            .Must(cpf => DocumentoValidacao.CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
 
         RuleFor(f => f.Telefone)
             .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
@@ -102,35 +73,5 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
             .NotEmpty().WithMessage("Data de admissão é obrigatória.")
             .LessThanOrEqualTo(DateOnly.FromDateTime(DateTime.UtcNow))
                 .WithMessage("Data de admissão não pode ser no futuro.");
-    }
-
-    private static bool CpfEhValido(string cpf)
-    {
-        if (cpf.Distinct().Count() == 1)
-            return false;
-
-        int[] pesos1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
-        int[] pesos2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
-
-        var digitos = cpf.Select(c => c - '0').ToArray();
-
-        var soma1 = 0;
-        for (var i = 0; i < 9; i++)
-            soma1 += digitos[i] * pesos1[i];
-
-        var resto1 = soma1 % 11;
-        var dv1 = resto1 < 2 ? 0 : 11 - resto1;
-
-        if (digitos[9] != dv1)
-            return false;
-
-        var soma2 = 0;
-        for (var i = 0; i < 10; i++)
-            soma2 += digitos[i] * pesos2[i];
-
-        var resto2 = soma2 % 11;
-        var dv2 = resto2 < 2 ? 0 : 11 - resto2;
-
-        return digitos[10] == dv2;
     }
 }

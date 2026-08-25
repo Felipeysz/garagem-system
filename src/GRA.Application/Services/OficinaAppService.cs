@@ -35,15 +35,20 @@ public class OficinaAppService : IOficinaAppService
         var cnpjTrim = dto.CNPJ.Trim().ToUpper();
         var emailTrim = dto.Email?.Trim();
 
+        var erros = new List<string>();
+
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper()))
-            return ApiResponse<OficinaDto>.ComErros(["Já existe uma oficina ativa cadastrada com esse nome."]);
+            erros.Add("Já existe uma oficina ativa cadastrada com esse nome.");
 
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim))
-            return ApiResponse<OficinaDto>.ComErros(["Já existe uma oficina ativa cadastrada com esse CNPJ."]);
+            erros.Add("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Email != null && o.Email.ToUpper() == emailTrim.ToUpper()))
-            return ApiResponse<OficinaDto>.ComErros(["Já existe uma oficina ativa cadastrada com esse email."]);
+            erros.Add("Já existe uma oficina ativa cadastrada com esse email.");
+
+        if (erros.Count > 0)
+            return ApiResponse<OficinaDto>.ComErros(erros);
 
         Oficina oficina = dto;
         oficina.Slug = GerarSlug(oficina.Nome);
@@ -68,15 +73,20 @@ public class OficinaAppService : IOficinaAppService
         var cnpjTrim = dto.CNPJ.Trim().ToUpper();
         var emailTrim = dto.Email?.Trim();
 
+        var erros = new List<string>();
+
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper() && o.Id != id))
-            return ApiResponse<OficinaDto>.ComErros(["Já existe uma oficina ativa cadastrada com esse nome."]);
+            erros.Add("Já existe uma oficina ativa cadastrada com esse nome.");
 
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim && o.Id != id))
-            return ApiResponse<OficinaDto>.ComErros(["Já existe uma oficina ativa cadastrada com esse CNPJ."]);
+            erros.Add("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Email != null && o.Email.ToUpper() == emailTrim.ToUpper() && o.Id != id))
-            return ApiResponse<OficinaDto>.ComErros(["Já existe uma oficina ativa cadastrada com esse email."]);
+            erros.Add("Já existe uma oficina ativa cadastrada com esse email.");
+
+        if (erros.Count > 0)
+            return ApiResponse<OficinaDto>.ComErros(erros);
 
         oficina.Nome = nomeTrim;
         oficina.Slug = GerarSlug(nomeTrim);

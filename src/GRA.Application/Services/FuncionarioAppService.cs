@@ -40,15 +40,20 @@ public class FuncionarioAppService : IFuncionarioAppService
         var cpfTrim = dto.CPF.Trim();
         var emailTrim = dto.Email?.Trim();
 
+        var erros = new List<string>();
+
         if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
-            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse nome nessa oficina."]);
+            erros.Add("Já existe um funcionário com esse nome nessa oficina.");
 
         if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.CPF == cpfTrim))
-            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse CPF nessa oficina."]);
+            erros.Add("Já existe um funcionário com esse CPF nessa oficina.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Email != null && f.Email.ToUpper() == emailTrim.ToUpper()))
-            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse email nessa oficina."]);
+            erros.Add("Já existe um funcionário com esse email nessa oficina.");
+
+        if (erros.Count > 0)
+            return ApiResponse<FuncionarioDto>.ComErros(erros);
 
         Funcionario funcionario = dto;
 
@@ -73,15 +78,20 @@ public class FuncionarioAppService : IFuncionarioAppService
         var emailTrim = dto.Email?.Trim();
         var oficinaId = funcionario.OficinaId;
 
+        var erros = new List<string>();
+
         if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
-            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse nome nessa oficina."]);
+            erros.Add("Já existe um funcionário com esse nome nessa oficina.");
 
         if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.CPF == cpfTrim))
-            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse CPF nessa oficina."]);
+            erros.Add("Já existe um funcionário com esse CPF nessa oficina.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Email != null && f.Email.ToUpper() == emailTrim.ToUpper()))
-            return ApiResponse<FuncionarioDto>.ComErros(["Já existe um funcionário com esse email nessa oficina."]);
+            erros.Add("Já existe um funcionário com esse email nessa oficina.");
+
+        if (erros.Count > 0)
+            return ApiResponse<FuncionarioDto>.ComErros(erros);
 
         funcionario.Nome = nomeTrim;
         funcionario.CPF = cpfTrim;
