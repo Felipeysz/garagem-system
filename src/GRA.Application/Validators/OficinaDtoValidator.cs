@@ -22,7 +22,7 @@ public class CadastrarOficinaDtoValidator : AbstractValidator<CadastrarOficinaDt
 
         RuleFor(o => o.Email)
             .Must(email => string.IsNullOrWhiteSpace(email) ||
-                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                System.Net.Mail.MailAddress.TryCreate(email.Trim(), out _))
                 .WithMessage("Email inválido.");
 
         RuleFor(o => o.Endereco!.Value)
@@ -48,7 +48,7 @@ public class AtualizarOficinaDtoValidator : AbstractValidator<AtualizarOficinaDt
 
         RuleFor(o => o.Email)
             .Must(email => string.IsNullOrWhiteSpace(email) ||
-                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
+                System.Net.Mail.MailAddress.TryCreate(email.Trim(), out _))
                 .WithMessage("Email inválido.");
 
         RuleFor(o => o.Endereco!.Value)

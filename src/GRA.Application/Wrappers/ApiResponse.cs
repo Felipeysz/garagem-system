@@ -7,6 +7,7 @@ public enum StatusResultado
     Sucesso,
     NaoEncontrado,
     ValidacaoFalhou,
+    NaoAutorizado,
     ErroInterno
 }
 
@@ -41,4 +42,6 @@ public class ApiResponse<T>
     public static ApiResponse<T> ComErro(string erro) => new(new List<string> { erro }, StatusResultado.ErroInterno);
 
     public static ApiResponse<T> NaoEncontrado(string erro) => new(new List<string> { erro }, StatusResultado.NaoEncontrado);
+
+    public static ApiResponse<T> NaoAutorizado(string erro) => new(new List<string> { erro }, StatusResultado.NaoAutorizado);
 }

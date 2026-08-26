@@ -12,6 +12,8 @@ public static class DependencyInjection
     {
         services.AddScoped<IOficinaAppService, OficinaAppService>();
         services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
+        services.AddScoped<IClienteAppService, ClienteAppService>();
+        services.AddScoped<IAuthAppService, AuthAppService>();
 
         services.AddValidatorsFromAssemblyContaining<CadastrarOficinaDtoValidator>();
 

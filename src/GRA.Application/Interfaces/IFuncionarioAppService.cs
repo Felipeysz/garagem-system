@@ -5,6 +5,8 @@ namespace GRA.Application.Interfaces;
 
 public interface IFuncionarioAppService
 {
+    Task<ApiResponse<FuncionarioDto>> CadastrarInicialAsync(CadastrarFuncionarioInicialDto dto);
+
     Task<ApiResponse<FuncionarioDto>> CadastrarAsync(CadastrarFuncionarioDto dto);
 
     Task<ApiResponse<FuncionarioDto>> AtualizarAsync(long id, AtualizarFuncionarioDto dto);

@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\GRA.Application\GRA.Application.csproj" />
-    <ProjectReference Include="..\GRA.Infra.Persistence\GRA.Infra.Persistence.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\GRA.Application\GRA.Application.csproj" />
+		<ProjectReference Include="..\GRA.Infra.Persistence\GRA.Infra.Persistence.csproj" />
+		<ProjectReference Include="..\GRA.Infra.Security\GRA.Infra.Security.csproj" />
+	</ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
 </Project>

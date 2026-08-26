@@ -1,12 +1,14 @@
 ﻿using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
 using GRA.Application.Wrappers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GRA.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Funcionario")]
 public class OficinasController : ControllerBase
 {
     private readonly IOficinaAppService _oficinaAppService;
@@ -17,6 +19,7 @@ public class OficinasController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<OficinaDto>), StatusCodes.Status422UnprocessableEntity)]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
