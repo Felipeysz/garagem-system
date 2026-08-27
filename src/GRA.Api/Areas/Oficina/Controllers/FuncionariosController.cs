@@ -19,25 +19,6 @@ public class FuncionariosController : ControllerBase
         _funcionarioAppService = funcionarioAppService;
     }
 
-    [HttpPost("inicial")]
-    [AllowAnonymous]
-    [ProducesResponseType(typeof(ApiResponse<FuncionarioDto>), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ApiResponse<FuncionarioDto>), StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(ApiResponse<FuncionarioDto>), StatusCodes.Status422UnprocessableEntity)]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CadastrarInicial([FromBody] CadastrarFuncionarioInicialDto dto)
-    {
-        var response = await _funcionarioAppService.CadastrarInicialAsync(dto);
-
-        return response.Status switch
-        {
-            StatusResultado.Sucesso => CreatedAtAction(nameof(BuscarPorId), new { id = response.Data!.Id }, response),
-            StatusResultado.NaoEncontrado => NotFound(response),
-            StatusResultado.ValidacaoFalhou => UnprocessableEntity(response),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
-        };
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<FuncionarioDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse<FuncionarioDto>), StatusCodes.Status404NotFound)]

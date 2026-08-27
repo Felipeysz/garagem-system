@@ -41,8 +41,6 @@ public class AuthAppService : IAuthAppService
         if (funcionario is null || !_passwordHasher.Verify(dto.Senha, funcionario.SenhaHash))
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
 
-        var roles = new[] { "Funcionario", funcionario.Cargo };
-
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, funcionario.Id.ToString()),
@@ -54,15 +52,7 @@ public class AuthAppService : IAuthAppService
 
         var token = _jwtTokenGenerator.GerarToken(claims);
 
-        var response = new LoginResponseDto(
-            funcionario.Id,
-            funcionario.Nome,
-            roles,
-            funcionario.OficinaId,
-            funcionario.Cargo,
-            token);
-
-        return ApiResponse<LoginResponseDto>.ComSucesso(response);
+        return ApiResponse<LoginResponseDto>.ComSucesso(new LoginResponseDto(token));
     }
 
     public async Task<ApiResponse<LoginResponseDto>> LoginClienteAsync(LoginClienteDto dto)
@@ -77,8 +67,6 @@ public class AuthAppService : IAuthAppService
         if (cliente is null || !_passwordHasher.Verify(dto.Senha, cliente.SenhaHash))
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
 
-        var roles = new[] { "Cliente" };
-
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, cliente.Id.ToString()),
@@ -88,14 +76,6 @@ public class AuthAppService : IAuthAppService
 
         var token = _jwtTokenGenerator.GerarToken(claims);
 
-        var response = new LoginResponseDto(
-            cliente.Id,
-            cliente.Nome,
-            roles,
-            null,
-            null,
-            token);
-
-        return ApiResponse<LoginResponseDto>.ComSucesso(response);
+        return ApiResponse<LoginResponseDto>.ComSucesso(new LoginResponseDto(token));
     }
 }

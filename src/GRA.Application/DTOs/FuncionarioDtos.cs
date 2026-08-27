@@ -2,15 +2,6 @@
 
 namespace GRA.Application.DTOs;
 
-public record CadastrarFuncionarioInicialDto(
-    long OficinaId,
-    string Nome,
-    string CPF,
-    string Senha,
-    string? Telefone,
-    string? Email,
-    DateOnly DataAdmissao);
-
 public record CadastrarFuncionarioDto(
     long OficinaId,
     string Nome,
