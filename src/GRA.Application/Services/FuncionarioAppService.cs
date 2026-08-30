@@ -5,6 +5,7 @@ using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
 using GRA.Domain.Security;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Services;
 
@@ -41,7 +42,7 @@ public class FuncionarioAppService : IFuncionarioAppService
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Oficina informada não existe.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cpfTrim = dto.CPF.Trim();
+        var cpf = Cpf.Parse(dto.CPF);
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
@@ -49,7 +50,7 @@ public class FuncionarioAppService : IFuncionarioAppService
         if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
             erros.Add("Já existe um funcionário com esse nome nessa oficina.");
 
-        if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.CPF == cpfTrim))
+        if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.CPF == cpf))
             erros.Add("Já existe um funcionário com esse CPF nessa oficina.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
@@ -63,7 +64,7 @@ public class FuncionarioAppService : IFuncionarioAppService
         {
             OficinaId = dto.OficinaId,
             Nome = nomeTrim,
-            CPF = cpfTrim,
+            CPF = cpf,
             SenhaHash = _passwordHasher.Hash(dto.Senha),
             Telefone = dto.Telefone?.Trim(),
             Email = emailTrim,
@@ -88,7 +89,7 @@ public class FuncionarioAppService : IFuncionarioAppService
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cpfTrim = dto.CPF.Trim();
+        var cpf = Cpf.Parse(dto.CPF);
         var emailTrim = dto.Email?.Trim();
         var oficinaId = funcionario.OficinaId;
 
@@ -97,7 +98,7 @@ public class FuncionarioAppService : IFuncionarioAppService
         if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
             erros.Add("Já existe um funcionário com esse nome nessa oficina.");
 
-        if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.CPF == cpfTrim))
+        if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.CPF == cpf))
             erros.Add("Já existe um funcionário com esse CPF nessa oficina.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
@@ -108,7 +109,7 @@ public class FuncionarioAppService : IFuncionarioAppService
             return ApiResponse<FuncionarioDto>.ComErros(erros);
 
         funcionario.Nome = nomeTrim;
-        funcionario.CPF = cpfTrim;
+        funcionario.CPF = cpf;
         funcionario.Telefone = dto.Telefone?.Trim();
         funcionario.Email = emailTrim;
         funcionario.Cargo = dto.Cargo.Trim();

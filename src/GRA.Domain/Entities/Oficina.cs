@@ -1,12 +1,13 @@
 using GRA.Domain.Entities.Commom;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Domain.Entities;
 
 public class Oficina : Entity
 {
-    public string Nome { get; set; }
-    public string Slug { get; set; }
-    public string CNPJ { get; set; }
+    public required string Nome { get; set; }
+    public string Slug { get; set; } = string.Empty;
+    public required Cnpj CNPJ { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public Endereco? Endereco { get; set; }

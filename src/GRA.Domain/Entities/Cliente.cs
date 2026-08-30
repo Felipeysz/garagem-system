@@ -1,4 +1,5 @@
 using GRA.Domain.Entities.Commom;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Domain.Entities;
 
@@ -6,7 +7,7 @@ public class Cliente : Entity
 {
     public required string Nome { get; set; }
     public required string SenhaHash { get; set; }
-    public required string CPF { get; set; }
+    public required Cpf CPF { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }
     public DateTime DataCadastro { get; set; } = DateTime.UtcNow;

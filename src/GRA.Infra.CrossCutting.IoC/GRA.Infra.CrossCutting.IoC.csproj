@@ -3,7 +3,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\GRA.Application\GRA.Application.csproj" />
 		<ProjectReference Include="..\GRA.Infra.Persistence\GRA.Infra.Persistence.csproj" />
-		<ProjectReference Include="..\GRA.Infra.Security\GRA.Infra.Security.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.0" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 	</ItemGroup>
 
 	<PropertyGroup>

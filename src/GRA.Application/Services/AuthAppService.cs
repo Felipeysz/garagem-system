@@ -4,6 +4,7 @@ using GRA.Application.Interfaces;
 using GRA.Application.Wrappers;
 using GRA.Domain.Repositories;
 using GRA.Domain.Security;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Services;
 
@@ -30,13 +31,11 @@ public class AuthAppService : IAuthAppService
 
     public async Task<ApiResponse<LoginResponseDto>> LoginFuncionarioAsync(LoginFuncionarioDto dto)
     {
-        if (dto.OficinaId <= 0 || string.IsNullOrWhiteSpace(dto.CPF) || string.IsNullOrWhiteSpace(dto.Senha))
+        if (dto.OficinaId <= 0 || string.IsNullOrWhiteSpace(dto.Senha) || !Cpf.TryCreate(dto.CPF, out var cpf))
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
 
-        var cpfTrim = dto.CPF.Trim();
-
         var funcionario = await _funcionarioRepository.SingleAsync(f =>
-            f.Ativo && f.OficinaId == dto.OficinaId && f.CPF == cpfTrim);
+            f.Ativo && f.OficinaId == dto.OficinaId && f.CPF == cpf);
 
         if (funcionario is null || !_passwordHasher.Verify(dto.Senha, funcionario.SenhaHash))
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
@@ -57,12 +56,10 @@ public class AuthAppService : IAuthAppService
 
     public async Task<ApiResponse<LoginResponseDto>> LoginClienteAsync(LoginClienteDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.CPF) || string.IsNullOrWhiteSpace(dto.Senha))
+        if (string.IsNullOrWhiteSpace(dto.Senha) || !Cpf.TryCreate(dto.CPF, out var cpf))
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
 
-        var cpfTrim = dto.CPF.Trim();
-
-        var cliente = await _clienteRepository.SingleAsync(c => c.Ativo && c.CPF == cpfTrim);
+        var cliente = await _clienteRepository.SingleAsync(c => c.Ativo && c.CPF == cpf);
 
         if (cliente is null || !_passwordHasher.Verify(dto.Senha, cliente.SenhaHash))
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);

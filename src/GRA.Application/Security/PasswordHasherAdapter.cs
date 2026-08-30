@@ -1,7 +1,8 @@
 ﻿using GRA.Domain.Security;
 using Microsoft.AspNetCore.Identity;
 
-namespace GRA.Infra.Security;
+namespace GRA.Application.Security;
+
 internal sealed class SenhaHasherUsuario
 {
 }

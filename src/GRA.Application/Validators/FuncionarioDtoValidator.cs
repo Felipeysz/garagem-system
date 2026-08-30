@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using FluentValidation;
 using GRA.Application.DTOs;
-using GRA.Shared.Documentos;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Validators;
 
@@ -17,9 +17,8 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
             .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
 
         RuleFor(f => f.CPF)
-            .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
-            .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$")).WithMessage("CPF deve conter 11 dígitos numéricos.")
-            .Must(cpf => DocumentoValidacao.CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
+            .Must(cpf => Cpf.TryCreate(cpf, out _))
+                .WithMessage("CPF inválido (formato incorreto ou dígito verificador não confere).");
 
         RuleFor(f => f.Senha)
             .Must(senha => !string.IsNullOrWhiteSpace(senha)).WithMessage("Senha é obrigatória.")
@@ -32,7 +31,7 @@ public class CadastrarFuncionarioDtoValidator : AbstractValidator<CadastrarFunci
 
         RuleFor(f => f.Email)
             .Must(email => string.IsNullOrWhiteSpace(email) ||
-                System.Net.Mail.MailAddress.TryCreate(email.Trim(), out _))
+                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
                 .WithMessage("Email inválido.");
 
         RuleFor(f => f.Cargo)
@@ -55,9 +54,8 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
             .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
 
         RuleFor(f => f.CPF)
-            .Must(cpf => !string.IsNullOrWhiteSpace(cpf)).WithMessage("CPF é obrigatório.")
-            .Must(cpf => Regex.IsMatch(cpf.Trim(), @"^\d{11}$")).WithMessage("CPF deve conter 11 dígitos numéricos.")
-            .Must(cpf => DocumentoValidacao.CpfEhValido(cpf.Trim())).WithMessage("CPF inválido (dígito verificador não confere).");
+            .Must(cpf => Cpf.TryCreate(cpf, out _))
+                .WithMessage("CPF inválido (formato incorreto ou dígito verificador não confere).");
 
         RuleFor(f => f.Telefone)
             .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
@@ -66,7 +64,7 @@ public class AtualizarFuncionarioDtoValidator : AbstractValidator<AtualizarFunci
 
         RuleFor(f => f.Email)
             .Must(email => string.IsNullOrWhiteSpace(email) ||
-                System.Net.Mail.MailAddress.TryCreate(email.Trim(), out _))
+                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
                 .WithMessage("Email inválido.");
 
         RuleFor(f => f.Cargo)

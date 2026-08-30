@@ -5,6 +5,7 @@ using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
 using GRA.Domain.Security;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Services;
 
@@ -29,36 +30,30 @@ public class ClienteAppService : IClienteAppService
 
     public async Task<ApiResponse<ClienteDto>> CadastrarAsync(CadastrarClienteDto dto)
     {
-        var erros = new List<string>();
-
-        // Validação de formato (FluentValidation) — acumula em vez de retornar de imediato.
         var validacao = await _cadastrarValidator.ValidateAsync(dto);
         if (!validacao.IsValid)
-            erros.AddRange(validacao.Errors.Select(e => e.ErrorMessage));
+            return ApiResponse<ClienteDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
         var nomeTrim = dto.Nome.Trim();
-        var cpfTrim = dto.CPF.Trim();
+        var cpf = Cpf.Parse(dto.CPF);
         var emailTrim = dto.Email?.Trim();
 
-        // Validação de negócio (unicidade) — mesma lista, mesmo padrão acumulativo.
-        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.Nome.ToUpper() == nomeTrim.ToUpper()))
-            erros.Add("Já existe um cliente ativo cadastrado com esse nome.");
+        var erros = new List<string>();
 
-        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpfTrim))
+        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpf))
             erros.Add("Já existe um cliente ativo cadastrado com esse CPF.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _clienteRepository.ExisteAsync(c => c.Ativo && c.Email != null && c.Email.ToUpper() == emailTrim.ToUpper()))
             erros.Add("Já existe um cliente ativo cadastrado com esse email.");
 
-        // Só verifica e retorna no final, depois de acumular tudo.
         if (erros.Count > 0)
             return ApiResponse<ClienteDto>.ComErros(erros);
 
         var cliente = new Cliente
         {
             Nome = nomeTrim,
-            CPF = cpfTrim,
+            CPF = cpf,
             SenhaHash = _passwordHasher.Hash(dto.Senha),
             Telefone = dto.Telefone?.Trim(),
             Email = emailTrim
@@ -72,24 +67,21 @@ public class ClienteAppService : IClienteAppService
 
     public async Task<ApiResponse<ClienteDto>> AtualizarAsync(long id, AtualizarClienteDto dto)
     {
-        var erros = new List<string>();
-
         var validacao = await _atualizarValidator.ValidateAsync(dto);
         if (!validacao.IsValid)
-            erros.AddRange(validacao.Errors.Select(e => e.ErrorMessage));
+            return ApiResponse<ClienteDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
         var cliente = await _clienteRepository.GetByIdAsync(id);
         if (cliente is null)
             return ApiResponse<ClienteDto>.NaoEncontrado("Cliente não encontrado.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cpfTrim = dto.CPF.Trim();
+        var cpf = Cpf.Parse(dto.CPF);
         var emailTrim = dto.Email?.Trim();
 
-        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.Nome.ToUpper() == nomeTrim.ToUpper() && c.Id != id))
-            erros.Add("Já existe um cliente ativo cadastrado com esse nome.");
+        var erros = new List<string>();
 
-        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpfTrim && c.Id != id))
+        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpf && c.Id != id))
             erros.Add("Já existe um cliente ativo cadastrado com esse CPF.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
@@ -100,7 +92,7 @@ public class ClienteAppService : IClienteAppService
             return ApiResponse<ClienteDto>.ComErros(erros);
 
         cliente.Nome = nomeTrim;
-        cliente.CPF = cpfTrim;
+        cliente.CPF = cpf;
         cliente.Telefone = dto.Telefone?.Trim();
         cliente.Email = emailTrim;
 

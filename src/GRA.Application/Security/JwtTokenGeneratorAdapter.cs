@@ -5,7 +5,7 @@ using GRA.Domain.Security;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace GRA.Infra.Security;
+namespace GRA.Application.Security;
 
 public class JwtTokenGeneratorAdapter : IJwtTokenGenerator
 {

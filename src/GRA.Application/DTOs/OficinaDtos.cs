@@ -1,4 +1,5 @@
 ﻿using GRA.Domain.Entities;
+using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.DTOs;
 
@@ -42,7 +43,7 @@ public record CadastrarOficinaDto(
     public static implicit operator Oficina(CadastrarOficinaDto dto) => new()
     {
         Nome = dto.Nome.Trim(),
-        CNPJ = dto.CNPJ.Trim(),
+        CNPJ = Cnpj.Parse(dto.CNPJ),
         Telefone = dto.Telefone?.Trim(),
         Email = dto.Email?.Trim(),
         Endereco = dto.Endereco is null ? null : (Endereco)dto.Endereco.Value
