@@ -5,7 +5,6 @@ using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
 using GRA.Domain.Security;
-using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Services;
 
@@ -35,7 +34,7 @@ public class ClienteAppService : IClienteAppService
             return ApiResponse<ClienteDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
         var nomeTrim = dto.Nome.Trim();
-        var cpf = Cpf.Parse(dto.CPF);
+        var cpf = dto.CPF.Trim();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
@@ -76,7 +75,7 @@ public class ClienteAppService : IClienteAppService
             return ApiResponse<ClienteDto>.NaoEncontrado("Cliente não encontrado.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cpf = Cpf.Parse(dto.CPF);
+        var cpf = dto.CPF.Trim();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();

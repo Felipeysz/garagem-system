@@ -22,11 +22,4 @@ public class GRAContext : DbContext
     public DbSet<OrdemServicoServico> OrdensServicoServico => Set<OrdemServicoServico>();
     public DbSet<Orcamento> Orcamentos => Set<Orcamento>();
     public DbSet<MovimentacaoEstoque> MovimentacoesEstoque => Set<MovimentacaoEstoque>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(GRAContext).Assembly);
-
-        base.OnModelCreating(modelBuilder);
-    }
 }

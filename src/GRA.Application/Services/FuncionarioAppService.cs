@@ -5,7 +5,6 @@ using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
 using GRA.Domain.Security;
-using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Services;
 
@@ -42,7 +41,7 @@ public class FuncionarioAppService : IFuncionarioAppService
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Oficina informada não existe.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cpf = Cpf.Parse(dto.CPF);
+        var cpf = dto.CPF.Trim();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
@@ -89,7 +88,7 @@ public class FuncionarioAppService : IFuncionarioAppService
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cpf = Cpf.Parse(dto.CPF);
+        var cpf = dto.CPF.Trim();
         var emailTrim = dto.Email?.Trim();
         var oficinaId = funcionario.OficinaId;
 

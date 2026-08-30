@@ -6,7 +6,6 @@ using GRA.Application.Interfaces;
 using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
-using GRA.Domain.ValueObjects;
 
 namespace GRA.Application.Services;
 
@@ -33,7 +32,7 @@ public class OficinaAppService : IOficinaAppService
             return ApiResponse<OficinaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
         var nomeTrim = dto.Nome.Trim();
-        var cnpj = Cnpj.Parse(dto.CNPJ);
+        var cnpj = dto.CNPJ.Trim().ToUpperInvariant();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
@@ -71,7 +70,7 @@ public class OficinaAppService : IOficinaAppService
             return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cnpj = Cnpj.Parse(dto.CNPJ);
+        var cnpj = dto.CNPJ.Trim().ToUpperInvariant();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
