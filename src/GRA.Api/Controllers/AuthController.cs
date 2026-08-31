@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login/funcionario")]
-    [ProducesResponseType(typeof(ApiResponse<LoginResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoginFuncionario([FromBody] LoginFuncionarioDto dto)
@@ -26,14 +26,14 @@ public class AuthController : ControllerBase
 
         return response.Status switch
         {
-            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.Sucesso => Ok(response.Data),
             StatusResultado.NaoAutorizado => Unauthorized(),
             _ => StatusCode(StatusCodes.Status500InternalServerError)
         };
     }
 
     [HttpPost("login/cliente")]
-    [ProducesResponseType(typeof(ApiResponse<LoginResponseDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(LoginResponseDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> LoginCliente([FromBody] LoginClienteDto dto)
@@ -42,7 +42,7 @@ public class AuthController : ControllerBase
 
         return response.Status switch
         {
-            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.Sucesso => Ok(response.Data),
             StatusResultado.NaoAutorizado => Unauthorized(),
             _ => StatusCode(StatusCodes.Status500InternalServerError)
         };
