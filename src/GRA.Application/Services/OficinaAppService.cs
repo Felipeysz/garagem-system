@@ -32,7 +32,7 @@ public class OficinaAppService : IOficinaAppService
             return ApiResponse<OficinaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
 
         var nomeTrim = dto.Nome.Trim();
-        var cnpjTrim = dto.CNPJ.Trim().ToUpper();
+        var cnpj = dto.CNPJ.Trim().ToUpperInvariant();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
@@ -40,7 +40,7 @@ public class OficinaAppService : IOficinaAppService
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper()))
             erros.Add("Já existe uma oficina ativa cadastrada com esse nome.");
 
-        if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim))
+        if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpj))
             erros.Add("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
@@ -70,7 +70,7 @@ public class OficinaAppService : IOficinaAppService
             return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
 
         var nomeTrim = dto.Nome.Trim();
-        var cnpjTrim = dto.CNPJ.Trim().ToUpper();
+        var cnpj = dto.CNPJ.Trim().ToUpperInvariant();
         var emailTrim = dto.Email?.Trim();
 
         var erros = new List<string>();
@@ -78,7 +78,7 @@ public class OficinaAppService : IOficinaAppService
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper() && o.Id != id))
             erros.Add("Já existe uma oficina ativa cadastrada com esse nome.");
 
-        if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpjTrim && o.Id != id))
+        if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpj && o.Id != id))
             erros.Add("Já existe uma oficina ativa cadastrada com esse CNPJ.");
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
@@ -90,7 +90,7 @@ public class OficinaAppService : IOficinaAppService
 
         oficina.Nome = nomeTrim;
         oficina.Slug = GerarSlug(nomeTrim);
-        oficina.CNPJ = cnpjTrim;
+        oficina.CNPJ = cnpj;
         oficina.Telefone = dto.Telefone?.Trim();
         oficina.Email = emailTrim;
 

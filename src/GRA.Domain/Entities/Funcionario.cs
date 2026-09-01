@@ -8,6 +8,7 @@ public class Funcionario : Entity
     public Oficina? Oficina { get; set; }
 
     public required string Nome { get; set; }
+    public required string SenhaHash { get; set; }
     public required string CPF { get; set; }
     public string? Telefone { get; set; }
     public string? Email { get; set; }

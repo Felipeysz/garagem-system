@@ -16,6 +16,6 @@ public class Veiculo : Entity
     public string? Observacoes { get; set; }
     public bool Ativo { get; set; } = true;
     public required Cliente Cliente { get; set; }
-    public Oficina Oficina { get; set; } = new();
+    public Oficina Oficina { get; set; } = null!;
     public ICollection<OrdemServico> OrdensServico { get; set; } = [];
 }

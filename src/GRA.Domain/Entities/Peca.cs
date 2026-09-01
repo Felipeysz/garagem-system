@@ -5,7 +5,7 @@ namespace GRA.Domain.Entities;
 public class Peca : Entity
 {
     public long OficinaId { get; set; }
-    public Oficina Oficina { get; set; } = new();
+    public Oficina Oficina { get; set; } = null!;
 
     public required string Nome { get; set; }
     public string? Descricao { get; set; }

@@ -42,7 +42,7 @@ public record CadastrarOficinaDto(
     public static implicit operator Oficina(CadastrarOficinaDto dto) => new()
     {
         Nome = dto.Nome.Trim(),
-        CNPJ = dto.CNPJ.Trim(),
+        CNPJ = dto.CNPJ.Trim().ToUpperInvariant(),
         Telefone = dto.Telefone?.Trim(),
         Email = dto.Email?.Trim(),
         Endereco = dto.Endereco is null ? null : (Endereco)dto.Endereco.Value
