@@ -58,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<IFuncionarioAppService, FuncionarioAppService>();
         services.AddScoped<IClienteAppService, ClienteAppService>();
         services.AddScoped<IAuthAppService, AuthAppService>();
+        services.AddScoped<IPecaAppService, PecaAppService>();
 
         services.AddValidatorsFromAssemblyContaining<CadastrarOficinaDtoValidator>();
 
