@@ -30,16 +30,20 @@ public class AuthAppService : IAuthAppService
 
     public async Task<ApiResponse<LoginResponseDto>> LoginFuncionarioAsync(LoginFuncionarioDto dto)
     {
-        if (dto.OficinaId <= 0 || string.IsNullOrWhiteSpace(dto.Senha) || string.IsNullOrWhiteSpace(dto.CPF))
+        if (dto.OficinaId <= 0 || string.IsNullOrWhiteSpace(dto.Senha) || string.IsNullOrWhiteSpace(dto.CPF)) 
+        { 
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
+        }
 
         var cpf = dto.CPF.Trim();
 
         var funcionario = await _funcionarioRepository.SingleAsync(f =>
             f.Ativo && f.OficinaId == dto.OficinaId && f.CPF == cpf);
 
-        if (funcionario is null || !_passwordHasher.Verify(dto.Senha, funcionario.SenhaHash))
+        if (funcionario is null || !_passwordHasher.Verify(dto.Senha, funcionario.SenhaHash)) 
+        { 
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
+        }
 
         var claims = new List<Claim>
         {
@@ -57,15 +61,19 @@ public class AuthAppService : IAuthAppService
 
     public async Task<ApiResponse<LoginResponseDto>> LoginClienteAsync(LoginClienteDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Senha) || string.IsNullOrWhiteSpace(dto.CPF))
+        if (string.IsNullOrWhiteSpace(dto.Senha) || string.IsNullOrWhiteSpace(dto.CPF)) 
+        { 
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
+        }
 
         var cpf = dto.CPF.Trim();
 
         var cliente = await _clienteRepository.SingleAsync(c => c.Ativo && c.CPF == cpf);
 
-        if (cliente is null || !_passwordHasher.Verify(dto.Senha, cliente.SenhaHash))
+        if (cliente is null || !_passwordHasher.Verify(dto.Senha, cliente.SenhaHash)) 
+        { 
             return ApiResponse<LoginResponseDto>.NaoAutorizado(MensagemCredenciaisInvalidas);
+        }
 
         var claims = new List<Claim>
         {

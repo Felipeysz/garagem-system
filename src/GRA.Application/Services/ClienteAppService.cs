@@ -30,8 +30,10 @@ public class ClienteAppService : IClienteAppService
     public async Task<ApiResponse<ClienteDto>> CadastrarAsync(CadastrarClienteDto dto)
     {
         var validacao = await _cadastrarValidator.ValidateAsync(dto);
-        if (!validacao.IsValid)
+        if (!validacao.IsValid) 
+        { 
             return ApiResponse<ClienteDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var nomeTrim = dto.Nome.Trim();
         var cpf = dto.CPF.Trim();
@@ -39,15 +41,21 @@ public class ClienteAppService : IClienteAppService
 
         var erros = new List<string>();
 
-        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpf))
+        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpf)) 
+        { 
             erros.Add("Já existe um cliente ativo cadastrado com esse CPF.");
+        }
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _clienteRepository.ExisteAsync(c => c.Ativo && c.Email != null && c.Email.ToUpper() == emailTrim.ToUpper()))
+        {
             erros.Add("Já existe um cliente ativo cadastrado com esse email.");
+        }
 
-        if (erros.Count > 0)
+        if (erros.Count > 0) 
+        { 
             return ApiResponse<ClienteDto>.ComErros(erros);
+        }
 
         var cliente = new Cliente
         {
@@ -67,12 +75,16 @@ public class ClienteAppService : IClienteAppService
     public async Task<ApiResponse<ClienteDto>> AtualizarAsync(long id, AtualizarClienteDto dto)
     {
         var validacao = await _atualizarValidator.ValidateAsync(dto);
-        if (!validacao.IsValid)
+        if (!validacao.IsValid) 
+        { 
             return ApiResponse<ClienteDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var cliente = await _clienteRepository.GetByIdAsync(id);
-        if (cliente is null)
+        if (cliente is null) 
+        { 
             return ApiResponse<ClienteDto>.NaoEncontrado("Cliente não encontrado.");
+        }
 
         var nomeTrim = dto.Nome.Trim();
         var cpf = dto.CPF.Trim();
@@ -80,15 +92,21 @@ public class ClienteAppService : IClienteAppService
 
         var erros = new List<string>();
 
-        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpf && c.Id != id))
+        if (await _clienteRepository.ExisteAsync(c => c.Ativo && c.CPF == cpf && c.Id != id)) 
+        { 
             erros.Add("Já existe um cliente ativo cadastrado com esse CPF.");
+        }
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _clienteRepository.ExisteAsync(c => c.Ativo && c.Email != null && c.Email.ToUpper() == emailTrim.ToUpper() && c.Id != id))
+        {
             erros.Add("Já existe um cliente ativo cadastrado com esse email.");
+        }
 
-        if (erros.Count > 0)
+        if (erros.Count > 0) 
+        { 
             return ApiResponse<ClienteDto>.ComErros(erros);
+        }
 
         cliente.Nome = nomeTrim;
         cliente.CPF = cpf;
@@ -104,8 +122,10 @@ public class ClienteAppService : IClienteAppService
     public async Task<ApiResponse<string>> DeletarAsync(long id)
     {
         var cliente = await _clienteRepository.GetByIdAsync(id);
-        if (cliente is null)
+        if (cliente is null) 
+        { 
             return ApiResponse<string>.NaoEncontrado("Cliente não encontrado.");
+        }
 
         _clienteRepository.Remove(cliente);
         await _clienteRepository.SaveChangesAsync();
@@ -116,8 +136,10 @@ public class ClienteAppService : IClienteAppService
     public async Task<ApiResponse<ClienteDto>> BuscarPorIdAsync(long id)
     {
         var cliente = await _clienteRepository.GetByIdAsync(id);
-        if (cliente is null)
+        if (cliente is null) 
+        { 
             return ApiResponse<ClienteDto>.NaoEncontrado("Cliente não encontrado.");
+        }
 
         return ApiResponse<ClienteDto>.ComSucesso(cliente);
     }

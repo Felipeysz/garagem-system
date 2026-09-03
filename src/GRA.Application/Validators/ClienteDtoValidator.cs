@@ -4,54 +4,39 @@ using GRA.Application.DTOs;
 
 namespace GRA.Application.Validators;
 
-public class CadastrarClienteDtoValidator : AbstractValidator<CadastrarClienteDto>
+internal static class ClienteValidationHelper
 {
-    public CadastrarClienteDtoValidator()
-    {
-        RuleFor(c => c.Nome)
-            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
-            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
+    private static readonly Regex CpfRegex = new(
+        @"^\d{11}$",
+        RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(500));
 
-        RuleFor(c => c.CPF)
-            .Must(CpfEhValido)
-                .WithMessage("CPF inválido (formato incorreto ou dígito verificador não confere).");
+    private static readonly Regex TelefoneRegex = new(
+        @"^\d{10,11}$",
+        RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(500));
 
-        RuleFor(c => c.Senha)
-            .Must(senha => !string.IsNullOrWhiteSpace(senha)).WithMessage("Senha é obrigatória.")
-            .Must(senha => senha.Length >= 8).WithMessage("Senha deve ter no mínimo 8 caracteres.");
+    private static readonly int[] Pesos1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
+    private static readonly int[] Pesos2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
 
-        RuleFor(c => c.Telefone)
-            .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
-                Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
-                .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.");
-
-        RuleFor(c => c.Email)
-            .Must(email => string.IsNullOrWhiteSpace(email) ||
-                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
-                .WithMessage("Email inválido.");
-    }
-
-    private static bool CpfEhValido(string? cpf)
+    public static bool CpfEhValido(string? cpf)
     {
         if (string.IsNullOrWhiteSpace(cpf))
             return false;
 
         var valor = cpf.Trim();
 
-        if (!Regex.IsMatch(valor, @"^\d{11}$"))
+        if (!CpfRegex.IsMatch(valor))
             return false;
 
         if (valor.Distinct().Count() == 1)
             return false;
 
-        int[] pesos1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
-        int[] pesos2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
-
         var digitos = valor.Select(c => c - '0').ToArray();
 
         var soma1 = 0;
         for (var i = 0; i < 9; i++)
-            soma1 += digitos[i] * pesos1[i];
+            soma1 += digitos[i] * Pesos1[i];
 
         var resto1 = soma1 % 11;
         var dv1 = resto1 < 2 ? 0 : 11 - resto1;
@@ -61,73 +46,84 @@ public class CadastrarClienteDtoValidator : AbstractValidator<CadastrarClienteDt
 
         var soma2 = 0;
         for (var i = 0; i < 10; i++)
-            soma2 += digitos[i] * pesos2[i];
+            soma2 += digitos[i] * Pesos2[i];
 
         var resto2 = soma2 % 11;
         var dv2 = resto2 < 2 ? 0 : 11 - resto2;
 
         return digitos[10] == dv2;
+    }
+
+    public static bool TelefoneEhValido(string? telefone) =>
+        string.IsNullOrWhiteSpace(telefone) || TelefoneRegex.IsMatch(telefone.Trim());
+
+    public static bool EmailEhValido(string? email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            return true; // e-mail opcional
+
+        return System.Net.Mail.MailAddress.TryCreate(email.Trim(), out var mail)
+            && mail.Address == email.Trim();
+    }
+
+    public static bool NomeEhValido(string? nome) =>
+        !string.IsNullOrWhiteSpace(nome) && nome.Trim().Length <= 150;
+}
+
+public abstract class ClienteDtoValidatorBase<T> : AbstractValidator<T>
+{
+    protected void AplicarRegrasComuns(
+        Func<T, string?> nomeSelector,
+        Func<T, string?> cpfSelector,
+        Func<T, string?> telefoneSelector,
+        Func<T, string?> emailSelector)
+    {
+        RuleFor(c => nomeSelector(c))
+            .Must(nome => !string.IsNullOrWhiteSpace(nome))
+                .WithMessage("Nome é obrigatório.")
+            .Must(nome => nome!.Trim().Length <= 150)
+                .WithMessage("Nome deve ter no máximo 150 caracteres.");
+
+        RuleFor(c => cpfSelector(c))
+            .Must(ClienteValidationHelper.CpfEhValido)
+                .WithMessage("CPF inválido (formato incorreto ou dígito verificador não confere).");
+
+        RuleFor(c => telefoneSelector(c))
+            .Must(ClienteValidationHelper.TelefoneEhValido)
+                .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.");
+
+        RuleFor(c => emailSelector(c))
+            .Must(ClienteValidationHelper.EmailEhValido)
+                .WithMessage("Email inválido.");
     }
 }
 
-public class AtualizarClienteDtoValidator : AbstractValidator<AtualizarClienteDto>
+public class CadastrarClienteDtoValidator : ClienteDtoValidatorBase<CadastrarClienteDto>
+{
+    public CadastrarClienteDtoValidator()
+    {
+        AplicarRegrasComuns(
+            c => c.Nome,
+            c => c.CPF,
+            c => c.Telefone,
+            c => c.Email);
+
+        RuleFor(c => c.Senha)
+            .Must(senha => !string.IsNullOrWhiteSpace(senha))
+                .WithMessage("Senha é obrigatória.")
+            .Must(senha => senha!.Length >= 8)
+                .WithMessage("Senha deve ter no mínimo 8 caracteres.");
+    }
+}
+
+public class AtualizarClienteDtoValidator : ClienteDtoValidatorBase<AtualizarClienteDto>
 {
     public AtualizarClienteDtoValidator()
     {
-        RuleFor(c => c.Nome)
-            .Must(nome => !string.IsNullOrWhiteSpace(nome)).WithMessage("Nome é obrigatório.")
-            .Must(nome => nome.Trim().Length <= 150).WithMessage("Nome deve ter no máximo 150 caracteres.");
-
-        RuleFor(c => c.CPF)
-            .Must(CpfEhValido)
-                .WithMessage("CPF inválido (formato incorreto ou dígito verificador não confere).");
-
-        RuleFor(c => c.Telefone)
-            .Must(telefone => string.IsNullOrWhiteSpace(telefone) ||
-                Regex.IsMatch(telefone.Trim(), @"^\d{10,11}$"))
-                .WithMessage("Telefone deve conter 10 ou 11 dígitos numéricos.");
-
-        RuleFor(c => c.Email)
-            .Must(email => string.IsNullOrWhiteSpace(email) ||
-                new System.Net.Mail.MailAddress(email.Trim()).Address == email.Trim())
-                .WithMessage("Email inválido.");
-    }
-
-    private static bool CpfEhValido(string? cpf)
-    {
-        if (string.IsNullOrWhiteSpace(cpf))
-            return false;
-
-        var valor = cpf.Trim();
-
-        if (!Regex.IsMatch(valor, @"^\d{11}$"))
-            return false;
-
-        if (valor.Distinct().Count() == 1)
-            return false;
-
-        int[] pesos1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
-        int[] pesos2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
-
-        var digitos = valor.Select(c => c - '0').ToArray();
-
-        var soma1 = 0;
-        for (var i = 0; i < 9; i++)
-            soma1 += digitos[i] * pesos1[i];
-
-        var resto1 = soma1 % 11;
-        var dv1 = resto1 < 2 ? 0 : 11 - resto1;
-
-        if (digitos[9] != dv1)
-            return false;
-
-        var soma2 = 0;
-        for (var i = 0; i < 10; i++)
-            soma2 += digitos[i] * pesos2[i];
-
-        var resto2 = soma2 % 11;
-        var dv2 = resto2 < 2 ? 0 : 11 - resto2;
-
-        return digitos[10] == dv2;
+        AplicarRegrasComuns(
+            c => c.Nome,
+            c => c.CPF,
+            c => c.Telefone,
+            c => c.Email);
     }
 }

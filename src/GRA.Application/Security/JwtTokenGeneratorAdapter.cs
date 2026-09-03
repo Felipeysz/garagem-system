@@ -25,6 +25,11 @@ public class JwtTokenGeneratorAdapter : IJwtTokenGenerator
         var expiracaoMinutos = int.Parse(_configuration["Jwt:ExpiracaoMinutos"] ?? "60");
 
         var chaveBytes = Encoding.UTF8.GetBytes(chave);
+        if (chaveBytes.Length < 32)
+        {
+            throw new InvalidOperationException(
+                "Jwt:Key deve ter no mínimo 32 bytes (256 bits) para uso com HmacSha256.");
+        }
         var credenciais = new SigningCredentials(
             new SymmetricSecurityKey(chaveBytes),
             SecurityAlgorithms.HmacSha256);
