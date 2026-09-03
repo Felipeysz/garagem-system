@@ -33,12 +33,16 @@ public class FuncionarioAppService : IFuncionarioAppService
     public async Task<ApiResponse<FuncionarioDto>> CadastrarAsync(CadastrarFuncionarioDto dto)
     {
         var validacao = await _cadastrarValidator.ValidateAsync(dto);
-        if (!validacao.IsValid)
+        if (!validacao.IsValid) 
+        { 
             return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var oficina = await _oficinaRepository.GetByIdAsync(dto.OficinaId);
-        if (oficina is null)
+        if (oficina is null) 
+        { 
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Oficina informada não existe.");
+        }
 
         var nomeTrim = dto.Nome.Trim();
         var cpf = dto.CPF.Trim();
@@ -46,18 +50,26 @@ public class FuncionarioAppService : IFuncionarioAppService
 
         var erros = new List<string>();
 
-        if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
+        if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper())) 
+        { 
             erros.Add("Já existe um funcionário com esse nome nessa oficina.");
+        }
 
         if (await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.CPF == cpf))
+        {
             erros.Add("Já existe um funcionário com esse CPF nessa oficina.");
+        }
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _funcionarioRepository.ExisteAsync(f => f.OficinaId == dto.OficinaId && f.Email != null && f.Email.ToUpper() == emailTrim.ToUpper()))
+        {
             erros.Add("Já existe um funcionário com esse email nessa oficina.");
+        }
 
-        if (erros.Count > 0)
+        if (erros.Count > 0) 
+        { 
             return ApiResponse<FuncionarioDto>.ComErros(erros);
+        }
 
         var funcionario = new Funcionario
         {
@@ -80,12 +92,16 @@ public class FuncionarioAppService : IFuncionarioAppService
     public async Task<ApiResponse<FuncionarioDto>> AtualizarAsync(long id, AtualizarFuncionarioDto dto)
     {
         var validacao = await _atualizarValidator.ValidateAsync(dto);
-        if (!validacao.IsValid)
+        if (!validacao.IsValid) 
+        { 
             return ApiResponse<FuncionarioDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var funcionario = await _funcionarioRepository.GetByIdAsync(id);
-        if (funcionario is null)
+        if (funcionario is null) 
+        { 
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
+        }
 
         var nomeTrim = dto.Nome.Trim();
         var cpf = dto.CPF.Trim();
@@ -94,18 +110,26 @@ public class FuncionarioAppService : IFuncionarioAppService
 
         var erros = new List<string>();
 
-        if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper()))
+        if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Nome.ToUpper() == nomeTrim.ToUpper())) 
+        { 
             erros.Add("Já existe um funcionário com esse nome nessa oficina.");
+        }
 
         if (await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.CPF == cpf))
+        {
             erros.Add("Já existe um funcionário com esse CPF nessa oficina.");
+        }
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _funcionarioRepository.ExisteAsync(f => f.Id != id && f.OficinaId == oficinaId && f.Email != null && f.Email.ToUpper() == emailTrim.ToUpper()))
+        {
             erros.Add("Já existe um funcionário com esse email nessa oficina.");
+        }
 
-        if (erros.Count > 0)
+        if (erros.Count > 0) 
+        { 
             return ApiResponse<FuncionarioDto>.ComErros(erros);
+        }
 
         funcionario.Nome = nomeTrim;
         funcionario.CPF = cpf;
@@ -123,8 +147,10 @@ public class FuncionarioAppService : IFuncionarioAppService
     public async Task<ApiResponse<string>> DeletarAsync(long id)
     {
         var funcionario = await _funcionarioRepository.GetByIdAsync(id);
-        if (funcionario is null)
+        if (funcionario is null) 
+        { 
             return ApiResponse<string>.NaoEncontrado("Funcionário não encontrado.");
+        }
 
         _funcionarioRepository.Remove(funcionario);
         await _funcionarioRepository.SaveChangesAsync();
@@ -135,8 +161,10 @@ public class FuncionarioAppService : IFuncionarioAppService
     public async Task<ApiResponse<FuncionarioDto>> BuscarPorIdAsync(long id)
     {
         var funcionario = await _funcionarioRepository.GetByIdAsync(id);
-        if (funcionario is null)
+        if (funcionario is null) 
+        {
             return ApiResponse<FuncionarioDto>.NaoEncontrado("Funcionário não encontrado.");
+        }
 
         return ApiResponse<FuncionarioDto>.ComSucesso(funcionario);
     }

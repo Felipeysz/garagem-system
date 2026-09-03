@@ -28,13 +28,9 @@ public class PecasController : ControllerBase
     {
         var response = await _pecaAppService.CadastrarAsync(dto);
 
-        return response.Status switch
-        {
-            StatusResultado.Sucesso => CreatedAtAction(nameof(BuscarPorId), new { id = response.Data!.Id }, response),
-            StatusResultado.NaoEncontrado => NotFound(response),
-            StatusResultado.ValidacaoFalhou => UnprocessableEntity(response),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
-        };
+        return TratarResposta(
+            response,
+            sucessoCustomizado: r => CreatedAtAction(nameof(BuscarPorId), new { id = r.Data!.Id }, r));
     }
 
     [HttpPut("{id:long}")]
@@ -46,13 +42,7 @@ public class PecasController : ControllerBase
     {
         var response = await _pecaAppService.AtualizarAsync(id, dto);
 
-        return response.Status switch
-        {
-            StatusResultado.Sucesso => Ok(response),
-            StatusResultado.NaoEncontrado => NotFound(response),
-            StatusResultado.ValidacaoFalhou => UnprocessableEntity(response),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
-        };
+        return TratarResposta(response);
     }
 
     [HttpPatch("{id:long}/ativar")]
@@ -63,12 +53,7 @@ public class PecasController : ControllerBase
     {
         var response = await _pecaAppService.AtivarAsync(id);
 
-        return response.Status switch
-        {
-            StatusResultado.Sucesso => Ok(response),
-            StatusResultado.NaoEncontrado => NotFound(response),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
-        };
+        return TratarResposta(response, tratarValidacaoFalhou: false);
     }
 
     [HttpPatch("{id:long}/inativar")]
@@ -79,12 +64,7 @@ public class PecasController : ControllerBase
     {
         var response = await _pecaAppService.InativarAsync(id);
 
-        return response.Status switch
-        {
-            StatusResultado.Sucesso => Ok(response),
-            StatusResultado.NaoEncontrado => NotFound(response),
-            _ => StatusCode(StatusCodes.Status500InternalServerError, response)
-        };
+        return TratarResposta(response, tratarValidacaoFalhou: false);
     }
 
     [HttpGet("{id:long}")]
@@ -95,10 +75,18 @@ public class PecasController : ControllerBase
     {
         var response = await _pecaAppService.BuscarPorIdAsync(id);
 
+        return TratarResposta(response, tratarValidacaoFalhou: false);
+    }
+    private IActionResult TratarResposta<T>(
+        ApiResponse<T> response,
+        Func<ApiResponse<T>, IActionResult>? sucessoCustomizado = null,
+        bool tratarValidacaoFalhou = true)
+    {
         return response.Status switch
         {
-            StatusResultado.Sucesso => Ok(response),
+            StatusResultado.Sucesso => sucessoCustomizado?.Invoke(response) ?? Ok(response),
             StatusResultado.NaoEncontrado => NotFound(response),
+            StatusResultado.ValidacaoFalhou when tratarValidacaoFalhou => UnprocessableEntity(response),
             _ => StatusCode(StatusCodes.Status500InternalServerError, response)
         };
     }

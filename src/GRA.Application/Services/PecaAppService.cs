@@ -30,18 +30,24 @@ public class PecaAppService : IPecaAppService
     {
         var validacao = await _cadastrarValidator.ValidateAsync(dto);
         if (!validacao.IsValid)
+        {
             return ApiResponse<PecaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var oficina = await _oficinaRepository.GetByIdAsync(dto.OficinaId);
         if (oficina is null)
+        { 
             return ApiResponse<PecaDto>.NaoEncontrado("Oficina informada não existe.");
+        }
 
         var codigoTrim = dto.CodigoInterno?.Trim();
 
         if (!string.IsNullOrWhiteSpace(codigoTrim) &&
             await _pecaRepository.ExisteAsync(p => p.Ativo && p.OficinaId == dto.OficinaId &&
-                p.CodigoInterno != null && p.CodigoInterno.ToUpper() == codigoTrim.ToUpper()))
+                p.CodigoInterno != null && p.CodigoInterno.ToUpper() == codigoTrim.ToUpper())) 
+        { 
             return ApiResponse<PecaDto>.ComErros(["Já existe uma peça ativa com esse código interno nessa oficina."]);
+        }
 
         Peca peca = dto;
 
@@ -55,11 +61,15 @@ public class PecaAppService : IPecaAppService
     {
         var validacao = await _atualizarValidator.ValidateAsync(dto);
         if (!validacao.IsValid)
+        {
             return ApiResponse<PecaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var peca = await _pecaRepository.GetByIdAsync(id);
         if (peca is null)
+        {
             return ApiResponse<PecaDto>.NaoEncontrado("Peça não encontrada.");
+        }
 
         var codigoTrim = dto.CodigoInterno?.Trim();
         var oficinaId = peca.OficinaId;
@@ -67,7 +77,9 @@ public class PecaAppService : IPecaAppService
         if (!string.IsNullOrWhiteSpace(codigoTrim) &&
             await _pecaRepository.ExisteAsync(p => p.Id != id && p.Ativo && p.OficinaId == oficinaId &&
                 p.CodigoInterno != null && p.CodigoInterno.ToUpper() == codigoTrim.ToUpper()))
-            return ApiResponse<PecaDto>.ComErros(["Já existe uma peça ativa com esse código interno nessa oficina."]);
+        { 
+            return ApiResponse<PecaDto>.ComErros(["Já existe uma peça ativa com esse código interno nessa oficina."]); 
+        }
 
         peca.Nome = dto.Nome.Trim();
         peca.Descricao = dto.Descricao?.Trim();
@@ -113,8 +125,10 @@ public class PecaAppService : IPecaAppService
     public async Task<ApiResponse<PecaDto>> BuscarPorIdAsync(long id)
     {
         var peca = await _pecaRepository.GetByIdAsync(id);
-        if (peca is null)
+        if (peca is null) 
+        { 
             return ApiResponse<PecaDto>.NaoEncontrado("Peça não encontrada.");
+        }
 
         return ApiResponse<PecaDto>.ComSucesso(peca);
     }

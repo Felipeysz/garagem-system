@@ -1,16 +1,25 @@
-﻿using System.Globalization;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 using GRA.Application.DTOs;
 using GRA.Application.Interfaces;
 using GRA.Application.Wrappers;
 using GRA.Domain.Entities;
 using GRA.Domain.Repositories;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace GRA.Application.Services;
 
 public class OficinaAppService : IOficinaAppService
 {
+    private static readonly Regex CaracteresInvalidosRegex = new(
+    @"[^a-z0-9\s-]",
+    RegexOptions.Compiled,
+    TimeSpan.FromMilliseconds(500));
+    private static readonly Regex EspacosEHifensRegex = new(
+        @"[\s-]+",
+        RegexOptions.Compiled,
+        TimeSpan.FromMilliseconds(500));
     private readonly IOficinaRepository _oficinaRepository;
     private readonly IValidator<CadastrarOficinaDto> _cadastrarValidator;
     private readonly IValidator<AtualizarOficinaDto> _atualizarValidator;
@@ -29,7 +38,9 @@ public class OficinaAppService : IOficinaAppService
     {
         var validacao = await _cadastrarValidator.ValidateAsync(dto);
         if (!validacao.IsValid)
+        {
             return ApiResponse<OficinaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var nomeTrim = dto.Nome.Trim();
         var cnpj = dto.CNPJ.Trim().ToUpperInvariant();
@@ -38,17 +49,25 @@ public class OficinaAppService : IOficinaAppService
         var erros = new List<string>();
 
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper()))
+        {
             erros.Add("Já existe uma oficina ativa cadastrada com esse nome.");
+        }
 
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpj))
+        {
             erros.Add("Já existe uma oficina ativa cadastrada com esse CNPJ.");
+        }
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Email != null && o.Email.ToUpper() == emailTrim.ToUpper()))
+        {
             erros.Add("Já existe uma oficina ativa cadastrada com esse email.");
+        }
 
         if (erros.Count > 0)
+        {
             return ApiResponse<OficinaDto>.ComErros(erros);
+        }
 
         Oficina oficina = dto;
         oficina.Slug = GerarSlug(oficina.Nome);
@@ -63,11 +82,15 @@ public class OficinaAppService : IOficinaAppService
     {
         var validacao = await _atualizarValidator.ValidateAsync(dto);
         if (!validacao.IsValid)
+        {
             return ApiResponse<OficinaDto>.ComErros(validacao.Errors.Select(e => e.ErrorMessage));
+        }
 
         var oficina = await _oficinaRepository.GetByIdAsync(id);
         if (oficina is null)
+        {
             return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
+        }
 
         var nomeTrim = dto.Nome.Trim();
         var cnpj = dto.CNPJ.Trim().ToUpperInvariant();
@@ -76,17 +99,25 @@ public class OficinaAppService : IOficinaAppService
         var erros = new List<string>();
 
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Nome.ToUpper() == nomeTrim.ToUpper() && o.Id != id))
+        { 
             erros.Add("Já existe uma oficina ativa cadastrada com esse nome.");
+        }
 
         if (await _oficinaRepository.ExisteAsync(o => o.Ativo && o.CNPJ == cnpj && o.Id != id))
+        {
             erros.Add("Já existe uma oficina ativa cadastrada com esse CNPJ.");
+        }
 
         if (!string.IsNullOrWhiteSpace(emailTrim) &&
             await _oficinaRepository.ExisteAsync(o => o.Ativo && o.Email != null && o.Email.ToUpper() == emailTrim.ToUpper() && o.Id != id))
+        {
             erros.Add("Já existe uma oficina ativa cadastrada com esse email.");
+        }
 
         if (erros.Count > 0)
+        { 
             return ApiResponse<OficinaDto>.ComErros(erros);
+        }
 
         oficina.Nome = nomeTrim;
         oficina.Slug = GerarSlug(nomeTrim);
@@ -95,7 +126,9 @@ public class OficinaAppService : IOficinaAppService
         oficina.Email = emailTrim;
 
         if (dto.Endereco is not null)
+        {
             oficina.Endereco = dto.Endereco.Value;
+        }
 
         _oficinaRepository.Update(oficina);
         await _oficinaRepository.SaveChangesAsync();
@@ -107,7 +140,9 @@ public class OficinaAppService : IOficinaAppService
     {
         var oficina = await _oficinaRepository.GetByIdAsync(id);
         if (oficina is null)
+        {
             return ApiResponse<string>.NaoEncontrado("Oficina não encontrada.");
+        }
 
         oficina.Ativo = true;
 
@@ -121,7 +156,9 @@ public class OficinaAppService : IOficinaAppService
     {
         var oficina = await _oficinaRepository.GetByIdAsync(id);
         if (oficina is null)
+        {
             return ApiResponse<string>.NaoEncontrado("Oficina não encontrada.");
+        }
 
         oficina.Ativo = false;
 
@@ -134,8 +171,10 @@ public class OficinaAppService : IOficinaAppService
     public async Task<ApiResponse<OficinaDto>> BuscarPorSlugAsync(string slug)
     {
         var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Slug == slug);
-        if (oficina is null)
+        if (oficina is null) 
+        { 
             return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
+        }
 
         return ApiResponse<OficinaDto>.ComSucesso(oficina);
     }
@@ -144,7 +183,9 @@ public class OficinaAppService : IOficinaAppService
     {
         var oficina = await _oficinaRepository.SingleAsync(o => o.Ativo && o.Nome == nome);
         if (oficina is null)
+        { 
             return ApiResponse<OficinaDto>.NaoEncontrado("Oficina não encontrada.");
+        }
 
         return ApiResponse<OficinaDto>.ComSucesso(oficina);
     }
@@ -158,7 +199,9 @@ public class OficinaAppService : IOficinaAppService
         {
             var categoria = CharUnicodeInfo.GetUnicodeCategory(c);
             if (categoria != UnicodeCategory.NonSpacingMark)
+            {
                 semAcentos.Append(c);
+            }
         }
 
         var slug = semAcentos.ToString()
@@ -166,8 +209,8 @@ public class OficinaAppService : IOficinaAppService
             .ToLowerInvariant()
             .Trim();
 
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[^a-z0-9\s-]", "");
-        slug = System.Text.RegularExpressions.Regex.Replace(slug, @"[\s-]+", "-");
+        slug = CaracteresInvalidosRegex.Replace(slug, "");
+        slug = EspacosEHifensRegex.Replace(slug, "-");
 
         return slug.Trim('-');
     }
