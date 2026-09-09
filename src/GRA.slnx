@@ -8,11 +8,14 @@
   <Folder Name="/3 - Domain/">
     <Project Path="GRA.Domain/GRA.Domain.csproj" />
   </Folder>
-  <Folder Name="/4 - Infrastructure/">
+  <Folder Name="/4 - Infrastructure/" />
+  <Folder Name="/4 - Infrastructure/4.1 - Data/">
     <Project Path="GRA.Infra.Persistence/GRA.Infra.Persistence.csproj" />
   </Folder>
-  <Folder Name="/4 - Infrastructure/Crosscutting/">
+  <Folder Name="/4 - Infrastructure/4.2 - Crosscutting/">
     <Project Path="GRA.Infra.CrossCutting.IoC/GRA.Infra.CrossCutting.IoC.csproj" />
   </Folder>
-  <Project Path="GRA.Tests/GRA.Tests.csproj" />
+  <Folder Name="/5 - Tests/">
+    <Project Path="GRA.Tests/GRA.Tests.csproj" />
+  </Folder>
 </Solution>
