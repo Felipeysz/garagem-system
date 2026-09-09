@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GRA.Application\GRA.Application.csproj" />
     <ProjectReference Include="..\GRA.Domain\GRA.Domain.csproj" />
+    <ProjectReference Include="..\GRA.Infra.Persistence\GRA.Infra.Persistence.csproj" />
   </ItemGroup>
 
 </Project>
