@@ -74,7 +74,7 @@ public record OficinaDto(
         oficina.CNPJ,
         oficina.Telefone,
         oficina.Email,
-        oficina.Endereco is null ? null : (EnderecoDto)oficina.Endereco,
+        oficina.Endereco is null ? (EnderecoDto?)null : (EnderecoDto)oficina.Endereco,
         oficina.DataCadastro,
         oficina.Ativo);
 }
